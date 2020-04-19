@@ -501,7 +501,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_CURLY_L;
-			evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CURLY_L)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -526,7 +526,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_CURLY_R;
-			evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CURLY_R)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -559,7 +559,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_SQUARE_L;
-			evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_SQUARE_L)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -584,7 +584,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_SQUARE_R;
-			evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_SQUARE_R)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -618,7 +618,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			current->next = new;
 			current->altr = altr;
 			new->type = CLISRV_VERTBAR;
-			evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_VERTBAR)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -650,7 +650,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			}
 			current->next = new;
 			new->type = CLISRV_EQUALS;
-			evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_EQUALS)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -686,13 +686,13 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 					base = new;
 					new->base = new;
 					new->type = CLISRV_CMD;
-					evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+					evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CMD)\n", new->type);
 				} else {
 					current->next = new;
 					new->base = current;
 					if (new->base->type != CLISRV_EQUALS) {
 						new->type = CLISRV_ARG;
-						evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+						evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_ARG)\n", new->type);
 						if (new->base->type != CLISRV_VERTBAR) {
 							if (altr > 0)
 								altr_last = altr;
@@ -700,7 +700,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 						}
 					} else {
 						new->type = CLISRV_VAL;
-						evm_log_debug("tokenizeCmdStr new->type: %d\n", new->type);
+						evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_VAL)\n", new->type);
 					}
 				}
 				new->level = level;
@@ -733,12 +733,12 @@ static clisrv_cmd_struct * tokenizeCliCmd(char *clicmd)
 		evm_log_system_error("calloc() - clisrv_cmd_struct\n");
 		return NULL;
 	}
-	tmp->cmdsz = strlen(clicmd);
+	tmp->cmdsz = strlen(clicmd) + 1;
 	if ((tmp->cmd = (char *)calloc(tmp->cmdsz, sizeof(char))) == NULL) {
 		evm_log_system_error("calloc() - cmd string\n");
 		return NULL;
 	}
-	memcpy(tmp->cmd, clicmd, tmp->cmdsz + 1);
+	memcpy(tmp->cmd, clicmd, tmp->cmdsz);
 	if ((tmp->tokens = tokenizeCmdStr(tmp)) == NULL) {
 		abort();
 	}
