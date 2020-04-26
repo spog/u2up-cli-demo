@@ -38,8 +38,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include <userlog/log_module.h>
-EVMLOG_MODULE_INIT(DEMO_CLI, 2);
+#include <u2up-log/u2up-log.h>
+U2UP_LOG_MODULE_INIT(DEMO_CLI, 2);
 
 #include <u2up-cli/u2up-clisrv.h>
 #include <u2up-cli/u2up-clicli.h>
@@ -48,12 +48,12 @@ EVMLOG_MODULE_INIT(DEMO_CLI, 2);
  * The MAIN part.
  */
 unsigned int log_mask;
-unsigned int evmlog_normal = 1;
-unsigned int evmlog_verbose = 0;
-unsigned int evmlog_trace = 0;
-unsigned int evmlog_debug = 0;
-unsigned int evmlog_use_syslog = 0;
-unsigned int evmlog_add_header = 1;
+unsigned int u2up_log_normal = 1;
+unsigned int u2up_log_verbose = 0;
+unsigned int u2up_log_trace = 0;
+unsigned int u2up_log_debug = 0;
+unsigned int u2up_log_use_syslog = 0;
+unsigned int u2up_log_add_header = 1;
 
 static void usage_help(char *argv[])
 {
@@ -69,7 +69,7 @@ static void usage_help(char *argv[])
 	printf("\t-g, --debug              Enable debug output.\n");
 #endif
 	printf("\t-s, --syslog             Enable syslog output (instead of stdout, stderr).\n");
-	printf("\t-n, --no-header          No EVMLOG header added to every evm_log_... output.\n");
+	printf("\t-n, --no-header          No U2UP_LOG header added to every u2up_log_... output.\n");
 	printf("\t-h, --help               Displays this text.\n");
 }
 
@@ -108,31 +108,31 @@ static int usage_check(int argc, char *argv[])
 
 		switch (c) {
 		case 'q':
-			evmlog_normal = 0;
+			u2up_log_normal = 0;
 			break;
 
 		case 'v':
-			evmlog_verbose = 1;
+			u2up_log_verbose = 1;
 			break;
 
 #if (EVMLOG_MODULE_TRACE != 0)
 		case 't':
-			evmlog_trace = 1;
+			u2up_log_trace = 1;
 			break;
 #endif
 
 #if (EVMLOG_MODULE_DEBUG != 0)
 		case 'g':
-			evmlog_debug = 1;
+			u2up_log_debug = 1;
 			break;
 #endif
 
 		case 'n':
-			evmlog_add_header = 0;
+			u2up_log_add_header = 0;
 			break;
 
 		case 's':
-			evmlog_use_syslog = 1;
+			u2up_log_use_syslog = 1;
 			break;
 
 		case 'h':
@@ -232,37 +232,37 @@ static int socketSendReceive(int sock, char *snd_str, char *rcv_buf, size_t rcv_
 {
 	int rv = 0, srv_rcvsz = 0;
 	char buffer[CLISRV_MAX_CMDSZ];
-	evm_log_info("(entry) sock=%d\n", sock);
+	u2up_log_info("(entry) sock=%d\n", sock);
 
 	/* Send cmd-data string over the connection socket (including terminating null byte) */
 	rv = send(sock, snd_str, strlen(snd_str) + 1, 0);
 	if (rv != strlen(snd_str) + 1) {
-		evm_log_system_error("send()\n");
+		u2up_log_system_error("send()\n");
 		return -1;
 	}
-	evm_log_debug("%d bytes sent\n", rv);
+	u2up_log_debug("%d bytes sent\n", rv);
 
 #if 1 /* Simulate server side! */
 	/* srv_rcv_data: including '\0' string termination if all data received */
 	while ((srv_rcvsz += recv(*srvsd, buffer, sizeof(buffer), 0)) < 0) {
 		if (errno != EWOULDBLOCK) {
-			evm_log_system_error("recv()\n");
+			u2up_log_system_error("recv()\n");
 			return -1;
 		}
 		continue;
 	}
 
-	evm_log_debug("srv: %d bytes received\n", srv_rcvsz);
+	u2up_log_debug("srv: %d bytes received\n", srv_rcvsz);
 
 	/* Parse received data */
 	if ((rv = parseReceivedData(pconn, buffer, srv_rcvsz)) < 0) {
-		evm_log_error("parseReceivedData()\n");
+		u2up_log_error("parseReceivedData()\n");
 		return -1;
 	}
 
 	/* Send response data (including terminating null byte) back to the client */
 	if ((rv = send(*srvsd, pconn->snd, pconn->sndsz, 0)) < 0) {
-		evm_log_system_error("send()\n");
+		u2up_log_system_error("send()\n");
 		return -1;
 	}
 #endif
@@ -270,10 +270,10 @@ static int socketSendReceive(int sock, char *snd_str, char *rcv_buf, size_t rcv_
 	/* Receive data from the connection socket (including terminating null byte) */
 	rv = recv(sock, rcv_buf, rcv_buf_size, 0);
 	if (rv <= 0) {
-		evm_log_system_error("recv()\n");
+		u2up_log_system_error("recv()\n");
 		return -1;
 	}
-	evm_log_debug("%d bytes received\n", rv);
+	u2up_log_debug("%d bytes received\n", rv);
 
 	return 0;
 }
@@ -288,22 +288,22 @@ int main(int argc, char *argv[])
 	log_mask = LOG_MASK(LOG_EMERG) | LOG_MASK(LOG_ALERT) | LOG_MASK(LOG_CRIT) | LOG_MASK(LOG_ERR);
 
 	/* Setup LOG_MASK according to startup arguments! */
-	if (evmlog_normal) {
+	if (u2up_log_normal) {
 		log_mask |= LOG_MASK(LOG_WARNING);
 		log_mask |= LOG_MASK(LOG_NOTICE);
 	}
-	if ((evmlog_verbose) || (evmlog_trace))
+	if ((u2up_log_verbose) || (u2up_log_trace))
 		log_mask |= LOG_MASK(LOG_INFO);
-	if (evmlog_debug)
+	if (u2up_log_debug)
 		log_mask |= LOG_MASK(LOG_DEBUG);
 
 	if ((clisrv_pcmds = tokenizeCliCmds(clisrv_cmds)) == NULL) {
-		evm_log_error("tokenizeCliCmds() failed!\n");
+		u2up_log_error("tokenizeCliCmds() failed!\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sd) == -1) {
-		evm_log_system_error("socketpair()\n");
+		u2up_log_system_error("socketpair()\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -312,14 +312,14 @@ int main(int argc, char *argv[])
 
 	/* Set server side socket nonblocking */
 	if ((flags = fcntl(*srvsd, F_GETFL, 0)) < 0) {
-		evm_log_system_error("fcntl()\n");
+		u2up_log_system_error("fcntl()\n");
 		close(sd[0]);
 		close(sd[1]);
 		exit(EXIT_FAILURE);
 	}
 
 	if ((rv = fcntl(*srvsd, F_SETFL, flags | O_NONBLOCK)) < 0) {
-		evm_log_system_error("fcntl()\n");
+		u2up_log_system_error("fcntl()\n");
 		close(sd[0]);
 		close(sd[1]);
 		exit(EXIT_FAILURE);
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 
 	/* Initialize internal client-server connection structure */
 	if ((pconn = (clisrv_pconn_struct *)calloc(1, sizeof(clisrv_pconn_struct))) == NULL) {
-		evm_log_system_error("calloc() - pconn\n");
+		u2up_log_system_error("calloc() - pconn\n");
 		close(sd[0]);
 		close(sd[1]);
 		exit(EXIT_FAILURE);
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 
 	/* Initialize History-log file (and trim to the last 100 lines) */
 	if (initCmdLineLog(".u2up_cli.log", 10) < 0) {
-		evm_log_error("initCmdLineLog()\n");
+		u2up_log_error("initCmdLineLog()\n");
 		close(sd[0]);
 		close(sd[1]);
 		exit(EXIT_FAILURE);
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
 
 	/* Process CLI commands */
 	if (processCliCmds(*clisd, socketSendReceive) < 0) {
-		evm_log_error("processCliCmds()\n");
+		u2up_log_error("processCliCmds()\n");
 		close(sd[0]);
 		close(sd[1]);
 		exit(EXIT_FAILURE);

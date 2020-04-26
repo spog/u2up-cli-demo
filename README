@@ -75,7 +75,7 @@ lrwxrwxrwx 1 user user   11 apr 26 12:07 u2up-cli -> ../u2up-cli
 demo/u2up-cli-demo$ 
 
 demo/u2up-cli-demo$ 
-demo/u2up-cli-demo$ gcc -o hello-cli -I ./ -DEVMLOG_MODULE_DEBUG=1 -DEVMLOG_MODULE_TRACE=1 -g hello-cli.c
+demo/u2up-cli-demo$ gcc -o hello-cli -I ./ -DU2UP_LOG_MODULE_DEBUG=1 -DU2UP_LOG_MODULE_TRACE=1 -g hello-cli.c
 demo/u2up-cli-demo$ 
 
 demo/u2up-cli-demo$ 
