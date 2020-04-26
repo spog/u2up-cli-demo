@@ -1,4 +1,92 @@
 Compiling "demo-cli":
 
-$ gcc -o hello-cli -I ./ -DEVMLOG_MODULE_DEBUG=1 -DEVMLOG_MODULE_TRACE=1 -g hello-cli.c
+$ 
+$ mkdir demo
+$ 
+$ 
+$ cd demo
+demo$ 
+demo$ 
+demo$ 
+demo$ git clone https://github.com/spog/u2up-cli-demo.git
+Cloning into 'u2up-cli-demo'...
+remote: Enumerating objects: 4, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 4 (delta 0), reused 4 (delta 0), pack-reused 0
+Unpacking objects: 100% (4/4), done.
+demo$ 
+demo$ 
+demo$ 
+demo$ ls -la
+skupno 12
+drwxr-xr-x   3 user user 4096 apr 26 12:03 .
+drwxr-xr-x 123 user user 4096 apr 26 12:00 ..
+drwxr-xr-x   3 user user 4096 apr 26 12:03 u2up-cli-demo
+demo$ 
+
+demo$ 
+demo$ git clone https://github.com/spog/u2up-cli.git
+Cloning into 'u2up-cli'...
+remote: Enumerating objects: 21, done.
+remote: Counting objects: 100% (21/21), done.
+remote: Compressing objects: 100% (15/15), done.
+remote: Total 21 (delta 7), reused 19 (delta 5), pack-reused 0
+Unpacking objects: 100% (21/21), done.
+demo$ 
+
+demo$ 
+demo$ ls -la
+skupno 16
+drwxr-xr-x   4 user user 4096 apr 26 12:06 .
+drwxr-xr-x 123 user user 4096 apr 26 12:05 ..
+drwxr-xr-x   3 user user 4096 apr 26 12:06 u2up-cli
+drwxr-xr-x   3 user user 4096 apr 26 12:03 u2up-cli-demo
+demo$ 
+
+demo$ 
+demo$ cd u2up-cli-demo/
+demo/u2up-cli-demo$ 
+
+demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ ls -la
+skupno 28
+drwxr-xr-x 3 user user 4096 apr 26 12:03 .
+drwxr-xr-x 4 user user 4096 apr 26 12:06 ..
+drwxr-xr-x 8 user user 4096 apr 26 12:03 .git
+-rw-r--r-- 1 user user 8942 apr 26 12:03 hello-cli.c
+-rw-r--r-- 1 user user  112 apr 26 12:03 README
+demo/u2up-cli-demo$ 
+
+demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ ln -s ../u2up-cli u2up-cli
+demo/u2up-cli-demo$ 
+
+demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ ls -la
+skupno 28
+drwxr-xr-x 3 user user 4096 apr 26 12:07 .
+drwxr-xr-x 4 user user 4096 apr 26 12:06 ..
+drwxr-xr-x 8 user user 4096 apr 26 12:03 .git
+-rw-r--r-- 1 user user 8942 apr 26 12:03 hello-cli.c
+-rw-r--r-- 1 user user  112 apr 26 12:03 README
+lrwxrwxrwx 1 user user   11 apr 26 12:07 u2up-cli -> ../u2up-cli
+demo/u2up-cli-demo$ 
+
+demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ gcc -o hello-cli -I ./ -DEVMLOG_MODULE_DEBUG=1 -DEVMLOG_MODULE_TRACE=1 -g hello-cli.c
+demo/u2up-cli-demo$ 
+
+demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ ls -la
+skupno 380
+drwxr-xr-x 3 user user   4096 apr 26 12:08 .
+drwxr-xr-x 4 user user   4096 apr 26 12:06 ..
+drwxr-xr-x 8 user user   4096 apr 26 12:03 .git
+-rwxr-xr-x 1 user user 358672 apr 26 12:08 hello-cli
+-rw-r--r-- 1 user user   8942 apr 26 12:03 hello-cli.c
+-rw-r--r-- 1 user user    112 apr 26 12:03 README
+lrwxrwxrwx 1 user user     11 apr 26 12:07 u2up-cli -> ../u2up-cli
+demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ 
 
