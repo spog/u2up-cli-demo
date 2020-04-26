@@ -1,4 +1,0 @@
-Compiling "demo-cli":
-
-$ gcc -o hello-cli -I ./ -DEVMLOG_MODULE_DEBUG=1 -DEVMLOG_MODULE_TRACE=1 -g hello-cli.c
-
