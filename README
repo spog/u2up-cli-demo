@@ -3,10 +3,11 @@ Compiling "demo-cli":
 $ 
 $ mkdir demo
 $ 
+
 $ 
 $ cd demo
 demo$ 
-demo$ 
+
 demo$ 
 demo$ git clone https://github.com/spog/u2up-cli-demo.git
 Cloning into 'u2up-cli-demo'...
@@ -16,7 +17,7 @@ remote: Compressing objects: 100% (4/4), done.
 remote: Total 4 (delta 0), reused 4 (delta 0), pack-reused 0
 Unpacking objects: 100% (4/4), done.
 demo$ 
-demo$ 
+
 demo$ 
 demo$ ls -la
 skupno 12
@@ -87,6 +88,5 @@ drwxr-xr-x 8 user user   4096 apr 26 12:03 .git
 -rw-r--r-- 1 user user   8942 apr 26 12:03 hello-cli.c
 -rw-r--r-- 1 user user    112 apr 26 12:03 README
 lrwxrwxrwx 1 user user     11 apr 26 12:07 u2up-cli -> ../u2up-cli
-demo/u2up-cli-demo$ 
 demo/u2up-cli-demo$ 
 
