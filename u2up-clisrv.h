@@ -117,16 +117,16 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 	remain = pconn->tokens + pconn->rcvlen + 1 - next_token;
 
 #if 1
-	evm_log_debug("1 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
+	u2up_log_debug("1 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
 	{
 		int rv = 0;
 		char *cmd_token = pconn->tokens;
 		while (rv < pconn->nr_tokens) {
-			evm_log_debug("'%s' ", cmd_token);
+			u2up_log_debug("'%s' ", cmd_token);
 			cmd_token += (strlen(cmd_token) + 1);
 			rv++;
 		}
-		evm_log_debug("\n");
+		u2up_log_debug("\n");
 	}
 #endif
 	for (i = 0; i < remain; i++) {
@@ -134,16 +134,16 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 	}
 	pconn->nr_tokens--;
 #if 1
-	evm_log_debug("2 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
+	u2up_log_debug("2 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
 	{
 		int rv = 0;
 		char *cmd_token = pconn->tokens;
 		while (rv < pconn->nr_tokens) {
-			evm_log_debug("'%s' ", cmd_token);
+			u2up_log_debug("'%s' ", cmd_token);
 			cmd_token += (strlen(cmd_token) + 1);
 			rv++;
 		}
-		evm_log_debug("\n");
+		u2up_log_debug("\n");
 	}
 #endif
 
@@ -152,7 +152,7 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 
 void freePcmdCurrentTokens(clisrv_token_struct **curr_tokens)
 {
-	evm_log_info("freePcmdCurrentTokens: entry\n");
+	u2up_log_info("freePcmdCurrentTokens: entry\n");
 	/* Recursive freing */
 	if (curr_tokens != NULL) {
 		if (*curr_tokens != NULL) {
@@ -183,7 +183,7 @@ static clisrv_token_struct * clisrvCheckAndSetCommand(clisrv_token_struct *pcmd_
 		return NULL;
 
 	if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-		evm_log_system_error("calloc() - clisrv_token_struct: command\n");
+		u2up_log_system_error("calloc() - clisrv_token_struct: command\n");
 		abort();
 	}
 
@@ -215,12 +215,12 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 			return NULL;
 #endif
 #if 0
-	evm_log_debug("(pcmd_token=%p) '%s'\n", pcmd_token, pcmd_token->strval);
-	evm_log_debug(" level=%d\n", pcmd_token->level);
-	evm_log_debug(" mand=%d\n", pcmd_token->mand);
-	evm_log_debug(" opti=%d\n", pcmd_token->opti);
-	evm_log_debug(" altr=%d\n", pcmd_token->altr);
-	evm_log_debug("\n");
+	u2up_log_debug("(pcmd_token=%p) '%s'\n", pcmd_token, pcmd_token->strval);
+	u2up_log_debug(" level=%d\n", pcmd_token->level);
+	u2up_log_debug(" mand=%d\n", pcmd_token->mand);
+	u2up_log_debug(" opti=%d\n", pcmd_token->opti);
+	u2up_log_debug(" altr=%d\n", pcmd_token->altr);
+	u2up_log_debug("\n");
 #endif
 
 	last = curr_tokens;
@@ -229,18 +229,18 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 	}
 
 #if 0
-	evm_log_debug("(last=%p) '%s'\n", last, last->strval);
-	evm_log_debug(" level=%d\n", last->level);
-	evm_log_debug(" mand=%d\n", last->mand);
-	evm_log_debug(" opti=%d\n", last->opti);
-	evm_log_debug(" altr=%d\n", last->altr);
-	evm_log_debug("\n");
+	u2up_log_debug("(last=%p) '%s'\n", last, last->strval);
+	u2up_log_debug(" level=%d\n", last->level);
+	u2up_log_debug(" mand=%d\n", last->mand);
+	u2up_log_debug(" opti=%d\n", last->opti);
+	u2up_log_debug(" altr=%d\n", last->altr);
+	u2up_log_debug("\n");
 #endif
 
 	if (pconn->nr_tokens == 0) {
 		if ((pcmd_token->opti <= pcmd_token->mand) && (pcmd_token->altr == 0)) {
 			/*ERROR: mandatory command arguments required, but no more pconn tokens provided */
-			evm_log_debug("mandatory command arguments required, but no more pconn tokens provided\n");
+			u2up_log_debug("mandatory command arguments required, but no more pconn tokens provided\n");
 			return NULL;
 		}
 	}
@@ -251,7 +251,7 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 		if (strncmp(token, pcmd_token->strval, strlen(pcmd_token->strval)) == 0) {
 
 			if ((last->next = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: argument\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: argument\n");
 				abort();
 			}
 
@@ -263,7 +263,7 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 			last->next->altr = pcmd_token->altr;
 			if ((last->next->altr != 0) && (last->next->altr == last->altr)) {
 				/*ERROR: more than one alternative arguments provided*/
-				evm_log_debug("more than one alternative arguments provided\n");
+				u2up_log_debug("more than one alternative arguments provided\n");
 				freePcmdCurrentTokens(&curr_tokens);
 				return NULL;
 			}
@@ -278,19 +278,19 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 							strncpy(last->next->eqval, eq, 100);
 						} else {
 							/*ERROR: value string too long*/
-							evm_log_debug("argument value string too long\n");
+							u2up_log_debug("argument value string too long\n");
 							freePcmdCurrentTokens(&curr_tokens);
 							return NULL;
 						}
 					} else {
 						/*ERROR: value required, but value specification missing*/
-						evm_log_debug("argument value required, but value specification missing\n");
+						u2up_log_debug("argument value required, but value specification missing\n");
 						freePcmdCurrentTokens(&curr_tokens);
 						return NULL;
 					}
 				} else {
 					/*ERROR: value not required, but provided*/
-					evm_log_debug("argument value provided, but none required\n");
+					u2up_log_debug("argument value provided, but none required\n");
 					freePcmdCurrentTokens(&curr_tokens);
 					return NULL;
 				}
@@ -298,7 +298,7 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 				/*argument without provided value*/
 				if ((pcmd_token->next != NULL) && (pcmd_token->next->type == CLISRV_EQUALS)) {
 					/*ERROR: value required, but none provided*/
-					evm_log_debug("argument value required, but none provided\n");
+					u2up_log_debug("argument value required, but none provided\n");
 					freePcmdCurrentTokens(&curr_tokens);
 					return NULL;
 				}
@@ -349,7 +349,7 @@ clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *this, clisrv_pc
 
 		/* Error check - just in case */
 		if (pcmd_token->type == CLISRV_CMD) {
-			evm_log_error("CLISRV_CMD should not be detected here!\n");
+			u2up_log_error("CLISRV_CMD should not be detected here!\n");
 			freePcmdCurrentTokens(&curr_tokens);
 			return NULL;
 		}
@@ -370,7 +370,7 @@ clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *this, clisrv_pc
 #endif
 		/* Still not through command template! */
 		if (pcmd_token->type != CLISRV_ARG) {
-			evm_log_error("Only CLISRV_ARG should be detected here (type=%d)!\n", pcmd_token->type);
+			u2up_log_error("Only CLISRV_ARG should be detected here (type=%d)!\n", pcmd_token->type);
 			freePcmdCurrentTokens(&curr_tokens);
 			return NULL;
 		}
@@ -474,30 +474,30 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 	clisrv_token_struct *base = NULL;
 	clisrv_token_struct *current;
 	clisrv_token_struct *curr_base;
-	evm_log_info("(entry)\n");
+	u2up_log_info("(entry)\n");
 
 	if (clicmd == NULL) {
-		evm_log_error("Invalid argument clicmd=%p\n", clicmd);
+		u2up_log_error("Invalid argument clicmd=%p\n", clicmd);
 		return NULL;
 	}
 
-	evm_log_debug("tokenizeCmdStr clicmd->cmd: %s\n", clicmd->cmd);
+	u2up_log_debug("tokenizeCmdStr clicmd->cmd: %s\n", clicmd->cmd);
 
 	tmp = clicmd->cmd;
 	token_on = U2UP_CLI_FALSE;
 	while (*tmp != '\0') {
-		evm_log_debug("tokenizeCmdStr tmp: %s\n", tmp);
+		u2up_log_debug("tokenizeCmdStr tmp: %s\n", tmp);
 		if (*tmp == '{') {
 			level++;
 			mand = level;
 			if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: left curly bracket\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: left curly bracket\n");
 				abort();
 			}
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_CURLY_L;
-			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CURLY_L)\n", new->type);
+			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CURLY_L)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -512,17 +512,17 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 				altr_last = altr;
 			altr = 0;
 			if (level < 0) {
-				evm_log_error("Syntax error - curly brackets: more rights then lefts\n");
+				u2up_log_error("Syntax error - curly brackets: more rights then lefts\n");
 				abort();
 			}
 			if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: right curly bracket\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: right curly bracket\n");
 				abort();
 			}
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_CURLY_R;
-			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CURLY_R)\n", new->type);
+			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CURLY_R)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -534,12 +534,12 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 					break;
 			}
 			if (curr_base->type != CLISRV_CURLY_L) {
-				evm_log_error("Syntax error - curly brackets: left not found\n");
+				u2up_log_error("Syntax error - curly brackets: left not found\n");
 				abort();
 			}
 			new->base = curr_base;
 			if (new->level != (new->base->level - 1)) {
-				evm_log_error("Syntax error - curly brackets: left not matched\n");
+				u2up_log_error("Syntax error - curly brackets: left not matched\n");
 				abort();
 			}
 
@@ -549,13 +549,13 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			level++;
 			opti = level;
 			if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: left square bracket\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: left square bracket\n");
 				abort();
 			}
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_SQUARE_L;
-			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_SQUARE_L)\n", new->type);
+			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_SQUARE_L)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -570,17 +570,17 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 				altr_last = altr;
 			altr = 0;
 			if (level < 0) {
-				evm_log_error("Syntax error - square brackets: more rights then lefts\n");
+				u2up_log_error("Syntax error - square brackets: more rights then lefts\n");
 				abort();
 			}
 			if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: right square bracket\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: right square bracket\n");
 				abort();
 			}
 			current->next = new;
 			new->base = current;
 			new->type = CLISRV_SQUARE_R;
-			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_SQUARE_R)\n", new->type);
+			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_SQUARE_R)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -592,12 +592,12 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 					break;
 			}
 			if (curr_base->type != CLISRV_SQUARE_L) {
-				evm_log_error("Syntax error - square brackets: left not found\n");
+				u2up_log_error("Syntax error - square brackets: left not found\n");
 				abort();
 			}
 			new->base = curr_base;
 			if (new->level != (new->base->level - 1)) {
-				evm_log_error("Syntax error - square brackets: left not matched\n");
+				u2up_log_error("Syntax error - square brackets: left not matched\n");
 				abort();
 			}
 
@@ -608,13 +608,13 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 				altr = altr_last + 1;
 			}
 			if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: vertbar\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: vertbar\n");
 				abort();
 			}
 			current->next = new;
 			current->altr = altr;
 			new->type = CLISRV_VERTBAR;
-			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_VERTBAR)\n", new->type);
+			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_VERTBAR)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
@@ -633,7 +633,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 				(curr_base->type == CLISRV_VERTBAR) ||
 				(curr_base->type == CLISRV_ARG)
 			) {
-				evm_log_error("Syntax error - verbar\n");
+				u2up_log_error("Syntax error - verbar\n");
 				abort();
 			}
 
@@ -641,19 +641,19 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 		}
 		if (*tmp == '=') {
 			if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-				evm_log_system_error("calloc() - clisrv_token_struct: equals\n");
+				u2up_log_system_error("calloc() - clisrv_token_struct: equals\n");
 				abort();
 			}
 			current->next = new;
 			new->type = CLISRV_EQUALS;
-			evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_EQUALS)\n", new->type);
+			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_EQUALS)\n", new->type);
 			new->level = level;
 			new->mand = mand;
 			new->opti = opti;
 			new->altr = altr;
 			new->base = current;
 			if (new->base->type != CLISRV_ARG) {
-				evm_log_error("Syntax error - equals\n");
+				u2up_log_error("Syntax error - equals\n");
 				abort();
 			}
 
@@ -675,20 +675,20 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 			if (token_on == U2UP_CLI_FALSE) {
 				token_on = U2UP_CLI_TRUE;
 				if ((new = (clisrv_token_struct *)calloc(1, sizeof(clisrv_token_struct))) == NULL) {
-					evm_log_system_error("calloc() - clisrv_token_struct: strval\n");
+					u2up_log_system_error("calloc() - clisrv_token_struct: strval\n");
 					abort();
 				}
 				if (base == NULL) {
 					base = new;
 					new->base = new;
 					new->type = CLISRV_CMD;
-					evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CMD)\n", new->type);
+					u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_CMD)\n", new->type);
 				} else {
 					current->next = new;
 					new->base = current;
 					if (new->base->type != CLISRV_EQUALS) {
 						new->type = CLISRV_ARG;
-						evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_ARG)\n", new->type);
+						u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_ARG)\n", new->type);
 						if (new->base->type != CLISRV_VERTBAR) {
 							if (altr > 0)
 								altr_last = altr;
@@ -696,7 +696,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 						}
 					} else {
 						new->type = CLISRV_VAL;
-						evm_log_debug("tokenizeCmdStr new->type: %d (CLISRV_VAL)\n", new->type);
+						u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_VAL)\n", new->type);
 					}
 				}
 				new->level = level;
@@ -704,7 +704,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 				new->opti = opti;
 				new->altr = altr;
 				new->strval = tmp;
-				evm_log_debug("tokenizeCmdStr new->strval: %s\n", new->strval);
+				u2up_log_debug("tokenizeCmdStr new->strval: %s\n", new->strval);
 
 				current = new;
 			}
@@ -718,20 +718,20 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 static clisrv_cmd_struct * tokenizeCliCmd(char *clicmd)
 {
 	clisrv_cmd_struct *tmp;
-	evm_log_info("(entry) clicmd=%p\n", clicmd);
+	u2up_log_info("(entry) clicmd=%p\n", clicmd);
 
 	if (clicmd == NULL) {
-		evm_log_error("Invalid argument clicmd=%p\n", clicmd);
+		u2up_log_error("Invalid argument clicmd=%p\n", clicmd);
 		return NULL;
 	}
 
 	if ((tmp = (clisrv_cmd_struct *)calloc(1, sizeof(clisrv_cmd_struct))) == NULL) {
-		evm_log_system_error("calloc() - clisrv_cmd_struct\n");
+		u2up_log_system_error("calloc() - clisrv_cmd_struct\n");
 		return NULL;
 	}
 	tmp->cmdsz = strlen(clicmd) + 1;
 	if ((tmp->cmd = (char *)calloc(tmp->cmdsz, sizeof(char))) == NULL) {
-		evm_log_system_error("calloc() - cmd string\n");
+		u2up_log_system_error("calloc() - cmd string\n");
 		return NULL;
 	}
 	memcpy(tmp->cmd, clicmd, tmp->cmdsz);
@@ -742,49 +742,49 @@ static clisrv_cmd_struct * tokenizeCliCmd(char *clicmd)
 #if 0 /*test init result*/
 	{
 		clisrv_token_struct *token = tmp->tokens;
-		evm_log_debug("pcmd tokens:\n");
+		u2up_log_debug("pcmd tokens:\n");
 		while (token != NULL) {
-			evm_log_debug("tokenize cmd: %s\n", clicmd);
+			u2up_log_debug("tokenize cmd: %s\n", clicmd);
 			switch (token->type) {
 			case CLISRV_CMD:
-				evm_log_debug("COMMAND:\n");
+				u2up_log_debug("COMMAND:\n");
 				break;
 			case CLISRV_ARG:
-				evm_log_debug("ARGUMENT NAME:\n");
+				u2up_log_debug("ARGUMENT NAME:\n");
 				break;
 			case CLISRV_VAL:
-				evm_log_debug("ARGUMENT VALUE:\n");
+				u2up_log_debug("ARGUMENT VALUE:\n");
 				break;
 			case CLISRV_EQUALS:
-				evm_log_debug("EQUALS:\n");
+				u2up_log_debug("EQUALS:\n");
 				break;
 			case CLISRV_SQUARE_L:
-				evm_log_debug("OPTIONALY BEGIN:\n");
+				u2up_log_debug("OPTIONALY BEGIN:\n");
 				break;
 			case CLISRV_SQUARE_R:
-				evm_log_debug("OPTIONALY END:\n");
+				u2up_log_debug("OPTIONALY END:\n");
 				break;
 			case CLISRV_CURLY_L:
-				evm_log_debug("MANDATORY BEGIN:\n");
+				u2up_log_debug("MANDATORY BEGIN:\n");
 				break;
 			case CLISRV_CURLY_R:
-				evm_log_debug("MANDATORY END:\n");
+				u2up_log_debug("MANDATORY END:\n");
 				break;
 			case CLISRV_VERTBAR:
-				evm_log_debug("VERTBAR:\n");
+				u2up_log_debug("VERTBAR:\n");
 				break;
 			}
-			evm_log_debug("(%p) '%s'\n", token, token->strval);
-			evm_log_debug(" base=%p\n", token->base);
-			evm_log_debug(" next=%p\n", token->next);
-			evm_log_debug(" level=%d\n", token->level);
-			evm_log_debug(" mand=%d\n", token->mand);
-			evm_log_debug(" opti=%d\n", token->opti);
-			evm_log_debug(" altr=%d\n", token->altr);
-			evm_log_debug("\n");
+			u2up_log_debug("(%p) '%s'\n", token, token->strval);
+			u2up_log_debug(" base=%p\n", token->base);
+			u2up_log_debug(" next=%p\n", token->next);
+			u2up_log_debug(" level=%d\n", token->level);
+			u2up_log_debug(" mand=%d\n", token->mand);
+			u2up_log_debug(" opti=%d\n", token->opti);
+			u2up_log_debug(" altr=%d\n", token->altr);
+			u2up_log_debug("\n");
 			token = token->next;
 		}
-		evm_log_debug("\n");
+		u2up_log_debug("\n");
 	}
 #endif
 
@@ -796,21 +796,21 @@ static clisrv_cmds_struct * tokenizeCliCmds(char *clicmds[])
 	int i = 0;
 	clisrv_cmd_struct **tmp;
 	clisrv_cmds_struct *pcmds;
-	evm_log_info("(entry) clicmds=%p\n", clicmds);
+	u2up_log_info("(entry) clicmds=%p\n", clicmds);
 
 	if (clicmds == NULL) {
-		evm_log_error("Invalid argument clicmds=%p\n", clicmds);
+		u2up_log_error("Invalid argument clicmds=%p\n", clicmds);
 		return NULL;
 	}
 
 	if ((pcmds = (clisrv_cmds_struct *)calloc(1, sizeof(clisrv_cmds_struct))) == NULL) {
-		evm_log_system_error("calloc() - clisrv_cmds_struct\n");
+		u2up_log_system_error("calloc() - clisrv_cmds_struct\n");
 		return NULL;
 	}
 
 	pcmds->clicmds = clicmds;
 	while (clicmds[i] != NULL) {
-		evm_log_debug("cmd[%d]: %s\n", i, clicmds[i]);
+		u2up_log_debug("cmd[%d]: %s\n", i, clicmds[i]);
 		if (pcmds->first == NULL)
 			tmp = &pcmds->first;
 		if ((*tmp = tokenizeCliCmd(clicmds[i])) == NULL) {
@@ -822,11 +822,11 @@ static clisrv_cmds_struct * tokenizeCliCmds(char *clicmds[])
 	}
 	pcmds->nr_cmds = i;
 #if 0
-	evm_log_debug("nr_cmds=%d\n", pcmds->nr_cmds);
+	u2up_log_debug("nr_cmds=%d\n", pcmds->nr_cmds);
 	tmp = &pcmds->first;
 	i = 0;
 	while ((*tmp) != NULL) {
-		evm_log_debug("cmd[%d]\n", i);
+		u2up_log_debug("cmd[%d]\n", i);
 		tmp = &(*tmp)->next;
 		i++;
 	}
@@ -838,21 +838,21 @@ static clisrv_cmds_struct * tokenizeCliCmds(char *clicmds[])
 static int tokenizeCmdLine(clisrv_pconn_struct *pconn)
 {
 	char *tmp;
-	evm_log_info("(entry) pconn=%p\n", pconn);
+	u2up_log_info("(entry) pconn=%p\n", pconn);
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 #if 1
 	if ((tmp = (char *)reallocarray(pconn->tokens, (pconn->rcvlen + 1), sizeof(char))) == NULL) {
-		evm_log_return_system_err("realocarray() - tokens\n");
+		u2up_log_return_system_err("realocarray() - tokens\n");
 	}
 #else
 	free(pconn->tokens);
 	pconn->tokens = NULL;
 	if ((tmp = (char *)calloc((pconn->rcvlen + 1), sizeof(char))) == NULL) {
-		evm_log_return_system_err("calloc() - tokens\n");
+		u2up_log_return_system_err("calloc() - tokens\n");
 	}
 #endif
 	memcpy(tmp, pconn->rcv, pconn->rcvlen + 1);
@@ -860,7 +860,7 @@ static int tokenizeCmdLine(clisrv_pconn_struct *pconn)
 	pconn->nr_tokens = 0;
 	while (*tmp != '\0') {
 #if 0
-		evm_log_debug("tmp='%s'\n", tmp);
+		u2up_log_debug("tmp='%s'\n", tmp);
 #endif
 		switch (*tmp) {
 		case ' ':
@@ -892,7 +892,7 @@ static int tokenizeCmdLine(clisrv_pconn_struct *pconn)
 					}
 				} while (squeeze == U2UP_CLI_TRUE);
 #if 0
-				evm_log_debug("tmp:'%s'\n", tmp);
+				u2up_log_debug("tmp:'%s'\n", tmp);
 #endif
 				if (*(tmp + 1) == '=') {
 					*tmp = '=';
@@ -926,24 +926,24 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 	int opt_part_found = 0;
 	char *strval;
 	clisrv_token_struct *pcmd_token;
-	evm_log_info("(entry)\n");
+	u2up_log_info("(entry)\n");
 
 	if (pcmd_tokens == NULL) {
-		evm_log_error("Invalid argument pcmd_tokens=%p\n", pcmd_tokens);
+		u2up_log_error("Invalid argument pcmd_tokens=%p\n", pcmd_tokens);
 		return -1;
 	}
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	if (token == NULL) {
-		evm_log_error("Invalid argument token=%p\n", token);
+		u2up_log_error("Invalid argument token=%p\n", token);
 		return -1;
 	}
 
-	evm_log_debug("TEST: setCliCmdAutoSuggestByToken()\n");
+	u2up_log_debug("TEST: setCliCmdAutoSuggestByToken()\n");
 	pcmd_token = pcmd_tokens->next;
 	while (pcmd_token != NULL) {
 		if (
@@ -954,16 +954,16 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 			continue;
 		}
 		strval = pcmd_token->strval;
-		evm_log_debug("AutoSuggest - strval: '%s'\n", strval);
-		evm_log_debug("AutoSuggest - Comparing-opts: strval=%s, token=%s\n", strval, token);
+		u2up_log_debug("AutoSuggest - strval: '%s'\n", strval);
+		u2up_log_debug("AutoSuggest - Comparing-opts: strval=%s, token=%s\n", strval, token);
 		/* Force multi-match, if token empty! */
 		if (strlen(token) == 0)
 			opt_part_found++;
 		if (strlen(strval) >= strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				evm_log_debug("AutoSuggest - opts - partially compared: strval=%s, token=%s\n", strval, token);
+				u2up_log_debug("AutoSuggest - opts - partially compared: strval=%s, token=%s\n", strval, token);
 				opt_part_found++;
-				evm_log_debug("AutoSuggest - opts - buff-1: '%s'\n", buff);
+				u2up_log_debug("AutoSuggest - opts - buff-1: '%s'\n", buff);
 #if 0
 				if (strlen(strval) == strlen(token)) {
 					opt_found = 1;
@@ -986,10 +986,10 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 				continue;
 			}
 			strval = pcmd_token->strval;
-			evm_log_debug("AutoSuggest - strval: '%s'\n", strval);
+			u2up_log_debug("AutoSuggest - strval: '%s'\n", strval);
 			if (braces == 0)
 				clisrv_strncat(buff, "\n", size);
-			evm_log_debug("AutoSuggest - buff-2: '%s'\n", buff);
+			u2up_log_debug("AutoSuggest - buff-2: '%s'\n", buff);
 			if (
 				(pcmd_token->base->type != CLISRV_CMD) &&
 				(pcmd_token->base->type != CLISRV_ARG)
@@ -1024,7 +1024,7 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 							break;
 						case CLISRV_CURLY_L:
 							braces++;
-							evm_log_debug("AutoSuggest - curly brace left: strlen(buff)=%ld, buff='%s'\n", strlen(buff), buff);
+							u2up_log_debug("AutoSuggest - curly brace left: strlen(buff)=%ld, buff='%s'\n", strlen(buff), buff);
 							if ((strlen(buff) > 0) && (buff[strlen(buff) - 1] != '\n'))
 								clisrv_strncat(buff, " {", size);
 							else
@@ -1057,10 +1057,10 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 						}
 			}
 
-			evm_log_debug("AutoSuggest - opts - buff-4: '%s'\n", buff);
+			u2up_log_debug("AutoSuggest - opts - buff-4: '%s'\n", buff);
 			if (buff[strlen(buff) - 1] != '=')
 				clisrv_strncat(buff, " ", size);
-			evm_log_debug("AutoSuggest - opts - buff-5: '%s'\n", buff);
+			u2up_log_debug("AutoSuggest - opts - buff-5: '%s'\n", buff);
 			pcmd_token = pcmd_token->next;
 		}
 	}
@@ -1074,24 +1074,24 @@ static int setCliCmdAutoCompleteByToken(clisrv_token_struct *pcmd_tokens, clisrv
 	int opt_part_found = 0;
 	char *strval;
 	clisrv_token_struct *pcmd_token;
-	evm_log_info("(entry)\n");
+	u2up_log_info("(entry)\n");
 
 	if (pcmd_tokens == NULL) {
-		evm_log_error("Invalid argument pcmd_tokens=%p\n", pcmd_tokens);
+		u2up_log_error("Invalid argument pcmd_tokens=%p\n", pcmd_tokens);
 		return -1;
 	}
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	if (token == NULL) {
-		evm_log_error("Invalid argument token=%p\n", token);
+		u2up_log_error("Invalid argument token=%p\n", token);
 		return -1;
 	}
 
-	evm_log_debug("TEST: setCliCmdAutoCompleteByToken()\n");
+	u2up_log_debug("TEST: setCliCmdAutoCompleteByToken()\n");
 	pcmd_token = pcmd_tokens->next;
 	while (pcmd_token != NULL) {
 		if (
@@ -1102,16 +1102,16 @@ static int setCliCmdAutoCompleteByToken(clisrv_token_struct *pcmd_tokens, clisrv
 			continue;
 		}
 		strval = pcmd_token->strval;
-		evm_log_debug("%s\n", strval);
-		evm_log_debug("AutoComplete - Comparing-opts: strval=%s, token=%s\n", strval, token);
+		u2up_log_debug("%s\n", strval);
+		u2up_log_debug("AutoComplete - Comparing-opts: strval=%s, token=%s\n", strval, token);
 		/* Force multi-match, if token empty! */
 		if (strlen(token) == 0)
 			opt_part_found++;
 		if (strlen(strval) >= strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				evm_log_debug("AutoComplete - opts - partially compared: strval=%s, token=%s\n", strval, token);
+				u2up_log_debug("AutoComplete - opts - partially compared: strval=%s, token=%s\n", strval, token);
 				opt_part_found++;
-				evm_log_debug("AutoComplete - opts - buff-1: '%s'\n", buff);
+				u2up_log_debug("AutoComplete - opts - buff-1: '%s'\n", buff);
 
 				if (strlen(strval) == strlen(token)) {
 					opt_found = 1;
@@ -1150,15 +1150,15 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 	char *token;
 	char *strval;
 	clisrv_cmd_struct *pcmd;
-	evm_log_info("(entry)\n");
+	u2up_log_info("(entry)\n");
 
 	if (pcmds == NULL) {
-		evm_log_error("Invalid argument pcmds=%p\n", pcmds);
+		u2up_log_error("Invalid argument pcmds=%p\n", pcmds);
 		return -1;
 	}
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
@@ -1166,16 +1166,16 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 	pcmd = pcmds->first;
 	for (i = 0; i < pcmds->nr_cmds; i++) {
 		strval = pcmd->tokens->strval;
-		evm_log_debug("%s\n", strval);
-		evm_log_debug("Comparing-cmds: mode=%d, strval=%s, token=%s\n", mode, strval, token);
+		u2up_log_debug("%s\n", strval);
+		u2up_log_debug("Comparing-cmds: mode=%d, strval=%s, token=%s\n", mode, strval, token);
 		if (strlen(strval) >= strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				evm_log_debug("cmds - partially compared: strval=%s, token=%s\n", strval, token);
+				u2up_log_debug("cmds - partially compared: strval=%s, token=%s\n", strval, token);
 				cmd_part_found++;
-				evm_log_debug("cmds - buff-1: '%s'\n", buff);
+				u2up_log_debug("cmds - buff-1: '%s'\n", buff);
 
 				if (strlen(strval) == strlen(token)) {
-					evm_log_debug("buff-2: '%s'\n", buff);
+					u2up_log_debug("buff-2: '%s'\n", buff);
 					cmd_found = 1;
 					break;
 				}
@@ -1198,23 +1198,23 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 					clisrv_strncat(buff, "\n", size);
 					clisrv_strncat(buff, strval, size);
 
-					evm_log_debug("cmds - buff-4: '%s'\n", buff);
+					u2up_log_debug("cmds - buff-4: '%s'\n", buff);
 					clisrv_strncat(buff, " ", size);
-					evm_log_debug("cmds - buff-5: '%s'\n", buff);
+					u2up_log_debug("cmds - buff-5: '%s'\n", buff);
 				}
 			}
 		}
 		pcmd = pcmd->next;
 	}
 	if (cmd_found != 0) {
-		evm_log_debug("fully compared: strval=%s, token(nr_tokens=%d)=%s\n", strval, pconn->nr_tokens, token);
+		u2up_log_debug("fully compared: strval=%s, token(nr_tokens=%d)=%s\n", strval, pconn->nr_tokens, token);
 		if (pconn->nr_tokens > 0) {
 			i = 1;
 			token += (strlen(token) + 1);
 			while (i < pconn->nr_tokens) {
 				if (mode == CLISRV_AUTO_COMPLETE) {
 					opt_part_found = setCliCmdAutoCompleteByToken(pcmd->tokens, pconn, token, buff, size);
-					evm_log_debug("2 - opt_part_found=%d\n", opt_part_found);
+					u2up_log_debug("2 - opt_part_found=%d\n", opt_part_found);
 					if (strncmp(strval, token, size) == 0)
 						break;
 				}
@@ -1225,16 +1225,16 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 			}
 			if (mode == CLISRV_AUTO_SUGGEST) {
 				opt_part_found = setCliCmdAutoSuggestByToken(pcmd->tokens, pconn, token, buff, size);
-				evm_log_debug("3 - opt_part_found=%d\n", opt_part_found);
+				u2up_log_debug("3 - opt_part_found=%d\n", opt_part_found);
 			}
 		}
 	}
 
 	/* Adding additional space to auto-complete, if needed! */
 	if (mode == CLISRV_AUTO_COMPLETE) {
-		evm_log_debug("checkend - pconn->rcv(sz=%ld): '%c' cmd_found=%d, cmd_part_found=%d, opt_part_found=%d\n",
+		u2up_log_debug("checkend - pconn->rcv(sz=%ld): '%c' cmd_found=%d, cmd_part_found=%d, opt_part_found=%d\n",
 				strlen(pconn->rcv), pconn->rcv[strlen(pconn->rcv) - 2], cmd_found, cmd_part_found, opt_part_found);
-		evm_log_debug("checkend - buff(len=%ld): '%c'\n", strlen(buff), buff[strlen(buff) - 1]);
+		u2up_log_debug("checkend - buff(len=%ld): '%c'\n", strlen(buff), buff[strlen(buff) - 1]);
 		if (
 			((cmd_part_found == 1) || (opt_part_found == 1)) &&
 			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
@@ -1242,7 +1242,7 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 			(strlen(buff) > 0) &&
 			(buff[strlen(buff) - 1] != '=')
 		) {
-			evm_log_debug("adding space 1\n");
+			u2up_log_debug("adding space 1\n");
 			clisrv_strncat(buff, " ", size);
 		} else if (
 			((cmd_part_found == 1) && (opt_part_found == 1)) &&
@@ -1250,14 +1250,14 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 			(pconn->rcv[strlen(pconn->rcv) - 2] != '=') &&
 			(strlen(buff) == 0)
 		) {
-			evm_log_debug("adding space 2\n");
+			u2up_log_debug("adding space 2\n");
 			clisrv_strncat(buff, " ", size);
 		} else if (
 			((cmd_part_found == 1) && (opt_part_found == 0)) &&
 			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
 			(pconn->nr_tokens == 1)
 		) {
-			evm_log_debug("adding space 3\n");
+			u2up_log_debug("adding space 3\n");
 			clisrv_strncat(buff, " ", size);
 		}
 	}
@@ -1270,10 +1270,10 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 static int autoCmdLine(clisrv_pconn_struct *pconn, int mode)
 {
 	int rv = 0;
-	evm_log_info("(entry) pconn=%p\n", pconn);
+	u2up_log_info("(entry) pconn=%p\n", pconn);
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
@@ -1281,23 +1281,23 @@ static int autoCmdLine(clisrv_pconn_struct *pconn, int mode)
 		clisrv_strncat(pconn->snd, "<pre>", CLISRV_MAX_MSGSZ);
 
 	if ((rv = setCliCmdsResponseByTokens(clisrv_pcmds, pconn, pconn->snd, CLISRV_MAX_MSGSZ, mode)) < 0) {
-		evm_log_error("setCliCmdResponseByTokens() failed\n");
+		u2up_log_error("setCliCmdResponseByTokens() failed\n");
 		return -1;
 	}
 
 	switch (mode) {
 	case CLISRV_AUTO_COMPLETE:
-		evm_log_debug("Auto-Complete(len=%ld):'%s'\n", strlen(pconn->snd), pconn->snd);
-		evm_log_debug("Auto-Complete(pconn->rcvlen=%d):'%s'\n", pconn->rcvlen, pconn->rcv);
+		u2up_log_debug("Auto-Complete(len=%ld):'%s'\n", strlen(pconn->snd), pconn->snd);
+		u2up_log_debug("Auto-Complete(pconn->rcvlen=%d):'%s'\n", pconn->rcvlen, pconn->rcv);
 		clisrv_strncat(pconn->snd, "\t", CLISRV_MAX_MSGSZ);
-		evm_log_debug("Auto-Complete-send(len=1):'%s'\n", pconn->snd);
+		u2up_log_debug("Auto-Complete-send(len=1):'%s'\n", pconn->snd);
 		pconn->sndsz = strlen(pconn->snd) + 1;
 		break;
 	case CLISRV_AUTO_SUGGEST:
 		{
 			clisrv_strncat(pconn->snd, "</pre>", CLISRV_MAX_MSGSZ);
 			clisrv_strncat(pconn->snd, pconn->rcv, CLISRV_MAX_MSGSZ);
-			evm_log_debug("Auto-Suggest(len=%ld, pconn->rcvlen=%d):'%s'\n", strlen(pconn->snd), pconn->rcvlen, pconn->snd);
+			u2up_log_debug("Auto-Suggest(len=%ld, pconn->rcvlen=%d):'%s'\n", strlen(pconn->snd), pconn->rcvlen, pconn->snd);
 			pconn->sndsz = strlen(pconn->snd) + 1;
 		}
 		break;
@@ -1313,20 +1313,20 @@ static int execCliCmdsTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pco
 	char *strval;
 	clisrv_cmd_struct *pcmd;
 	clisrv_token_struct *curr_tokens;
-	evm_log_info("(entry)\n");
+	u2up_log_info("(entry)\n");
 
 	if (pcmds == NULL) {
-		evm_log_error("Invalid argument pcmds=%p\n", pcmds);
+		u2up_log_error("Invalid argument pcmds=%p\n", pcmds);
 		return -1;
 	}
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	if (pconn->nr_tokens == 0) {
-		evm_log_debug("Empty command\n");
+		u2up_log_debug("Empty command\n");
 		return 0;
 	}
 
@@ -1335,11 +1335,11 @@ static int execCliCmdsTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pco
 	/* First check command */
 	for (i = 0; i < pcmds->nr_cmds; i++) {
 		strval = pcmd->tokens->strval;
-		evm_log_debug("%s\n", strval);
-		evm_log_debug("Comparing-cmds: strval='%s', token='%s'\n", strval, token);
+		u2up_log_debug("%s\n", strval);
+		u2up_log_debug("Comparing-cmds: strval='%s', token='%s'\n", strval, token);
 		if (strlen(strval) == strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				evm_log_debug("command found: cmd='%s'\n", token);
+				u2up_log_debug("command found: cmd='%s'\n", token);
 				cmd_found = 1;
 				break;
 			}
@@ -1366,15 +1366,15 @@ static int execCmdLine(clisrv_pconn_struct *pconn)
 	int rv = 0;
 	int close_conn = 0;
 	char buff[CLISRV_MAX_MSGSZ] = "";
-	evm_log_info("(entry) pconn=%p\n", pconn);
+	u2up_log_info("(entry) pconn=%p\n", pconn);
 
 	if (pconn == NULL) {
-		evm_log_debug("Invalid argument pconn=%p\n", pconn);
+		u2up_log_debug("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	if ((rv = execCliCmdsTokens(clisrv_pcmds, pconn, buff, CLISRV_MAX_MSGSZ)) < 0) {
-		evm_log_debug("execCliCmdsTokens() failed (rv=%d)\n", rv);
+		u2up_log_debug("execCliCmdsTokens() failed (rv=%d)\n", rv);
 		switch (rv) {
 		case (-1):
 			clisrv_strncat(buff, "error: invalid execution call (check code)", CLISRV_MAX_MSGSZ);
@@ -1401,7 +1401,7 @@ static int execCmdLine(clisrv_pconn_struct *pconn)
 	if (close_conn != 0) {
 		clisrv_strncat(pconn->snd, "<quit>", CLISRV_MAX_MSGSZ);
 	}
-	evm_log_debug("sending response: '%s'\n", pconn->snd);
+	u2up_log_debug("sending response: '%s'\n", pconn->snd);
 	pconn->sndsz = strlen(pconn->snd) + 1;
 
 	return 0;
@@ -1410,20 +1410,20 @@ static int execCmdLine(clisrv_pconn_struct *pconn)
 static int parseCmdLine(clisrv_pconn_struct *pconn)
 {
 	int rv = 0;
-	evm_log_info("(entry) pconn=%p\n", pconn);
+	u2up_log_info("(entry) pconn=%p\n", pconn);
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	tokenizeCmdLine(pconn);
 #if 1
-	evm_log_debug("pconn->tokens=%s, pconn->nr_tokens=%d\n", pconn->tokens, pconn->nr_tokens);
+	u2up_log_debug("pconn->tokens=%s, pconn->nr_tokens=%d\n", pconn->tokens, pconn->nr_tokens);
 	{
 		char *token = pconn->tokens;
 		while (rv < pconn->nr_tokens) {
-			evm_log_debug("%s\n", token);
+			u2up_log_debug("%s\n", token);
 			token += (strlen(token) + 1);
 			rv++;
 		}
@@ -1431,8 +1431,8 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 	rv = 0;
 #endif
 
-	evm_log_debug("pconn->rcvlen=%d'\n", pconn->rcvlen);
-	evm_log_debug("pconn->rcv='%s'\n", pconn->rcv);
+	u2up_log_debug("pconn->rcvlen=%d'\n", pconn->rcvlen);
+	u2up_log_debug("pconn->rcv='%s'\n", pconn->rcv);
 	if (pconn->rcvlen > 0) {
 		if (pconn->rcv[pconn->rcvlen - 1] == '\t') {
 			if (pconn->rcvlen > 1) {
@@ -1441,14 +1441,14 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 					pconn->rcvlen -= 2;
 					/* Auto-suggest the cmdline */
 					if ((rv = autoCmdLine(pconn, CLISRV_AUTO_SUGGEST)) < 0) {
-						evm_log_error("Failed to auto-suggest cmdline!\n");
+						u2up_log_error("Failed to auto-suggest cmdline!\n");
 					}
 					return rv;
 				}
 			}
 			/* Auto-complete the cmdline */
 			if ((rv = autoCmdLine(pconn, CLISRV_AUTO_COMPLETE)) < 0) {
-				evm_log_error("Failed to auto-complete cmdline!\n");
+				u2up_log_error("Failed to auto-complete cmdline!\n");
 			}
 			return rv;
 		}
@@ -1458,7 +1458,7 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 			pconn->rcvlen--;
 			/* Execute the cmdline */
 			if ((rv = execCmdLine(pconn)) < 0) {
-				evm_log_error("Failed to execute the cmdline!\n");
+				u2up_log_error("Failed to execute the cmdline!\n");
 			}
 			return rv;
 		} else {
@@ -1476,26 +1476,26 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 static int parseReceivedData(clisrv_pconn_struct *pconn, char *data, int datasz /*data size including '\0', if received*/)
 {
 	char *tmp;
-	evm_log_info("(entry) pconn=%p\n", pconn);
+	u2up_log_info("(entry) pconn=%p\n", pconn);
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	if (data == NULL) {
-		evm_log_error("Invalid argument data=%p\n", data);
+		u2up_log_error("Invalid argument data=%p\n", data);
 		return -1;
 	}
 
 	/* compare data size (datasz) and string length to check, if '\0' received */
 	if (datasz != (strlen(data) + 1)) {
-		evm_log_error("Invalid argument datasz=%d (does not match string size)\n", datasz);
+		u2up_log_error("Invalid argument datasz=%d (does not match string size)\n", datasz);
 		return -1;
 	}
 
 	if ((tmp = (char *)reallocarray(pconn->rcv, datasz, sizeof(char))) == NULL) {
-		evm_log_system_error("realocarray() - rcv\n");
+		u2up_log_system_error("realocarray() - rcv\n");
 		abort();
 	}
 	pconn->rcv = tmp;
@@ -1503,7 +1503,7 @@ static int parseReceivedData(clisrv_pconn_struct *pconn, char *data, int datasz 
 	pconn->rcvlen = datasz - 1;
 
 	if ((tmp = (char *)reallocarray(pconn->snd, CLISRV_MAX_MSGSZ, sizeof(char))) == NULL) {
-		evm_log_system_error("realocarray() - snd\n");
+		u2up_log_system_error("realocarray() - snd\n");
 		abort();
 	}
 	pconn->snd = tmp;

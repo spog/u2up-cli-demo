@@ -67,25 +67,25 @@ static int initCmdLineLog(char *fileName, int logTrimLines)
 	size_t n;
 
 	if (fileName == NULL) {
-		evm_log_error("History log filename not specified!\n");
+		u2up_log_error("History log filename not specified!\n");
 		return -1;
 	}
 
 	if (log == NULL) {
-		evm_log_error("History log structure pointer not specified!\n");
+		u2up_log_error("History log structure pointer not specified!\n");
 		return -1;
 	}
 
 	log->num_file_entries = 0;
 	log->file = fopen(fileName, "a+");
 	if (log->file == NULL) {
-		evm_log_system_error("fopen()\n");
+		u2up_log_system_error("fopen()\n");
 		return -1;
 	}
 
 	tmp = &(log->first);
 	if ((*tmp = (netsimCliLogEntryStruct *)calloc(1, sizeof(netsimCliLogEntryStruct))) == NULL) {
-		evm_log_system_error("calloc() - Log entry struct\n");
+		u2up_log_system_error("calloc() - Log entry struct\n");
 		abort();
 	}
 	(*tmp)->prev = *tmp;
@@ -97,7 +97,7 @@ static int initCmdLineLog(char *fileName, int logTrimLines)
 		n = fread(buff, 1, (CLISRV_BUFFSZ - 1), log->file);
 		buff[n] = '\0';
 		consumed = 0;
-		evm_log_debug("n=%d, consumed=%d, buff='%s'\n", n, consumed, buff);
+		u2up_log_debug("n=%zu, consumed=%d, buff='%s'\n", n, consumed, buff);
 		if (n > 0) {
 			token = buff;
 			nl = strchr(token, '\n');
@@ -105,30 +105,30 @@ static int initCmdLineLog(char *fileName, int logTrimLines)
 				*nl = '\0';
 				tokensz = strlen(token) + 1;
 				clisrv_strncat(line, token, CLISRV_MAX_CMDSZ);
-				evm_log_debug("tokensz=%d, token='%s' line='%s'\n", tokensz, token, line);
+				u2up_log_debug("tokensz=%d, token='%s' line='%s'\n", tokensz, token, line);
 				if ((*tmp = (netsimCliLogEntryStruct *)calloc(1, sizeof(netsimCliLogEntryStruct))) == NULL) {
-					evm_log_system_error("calloc() - Log entry struct\n");
+					u2up_log_system_error("calloc() - Log entry struct\n");
 					abort();
 				}
 				(*tmp)->prev = prev;
 				if (((*tmp)->entry = (char *)calloc((strlen(line) + 1), sizeof(char))) == NULL) {
-					evm_log_system_error("calloc() - Log entry line\n");
+					u2up_log_system_error("calloc() - Log entry line\n");
 					abort();
 				}
 				strncpy((*tmp)->entry, line, (strlen(line) + 1));
-				evm_log_debug("(*tmp)->entry='%s'\n", (*tmp)->entry);
+				u2up_log_debug("(*tmp)->entry='%s'\n", (*tmp)->entry);
 				line[0] = '\0';
 				prev = *tmp;
 				tmp = &((*tmp)->next);
 				consumed += tokensz;
 				token = &buff[consumed];
 				log->num_file_entries++;
-				evm_log_debug("num_file_entries=%d, nl=%p, consumed=%d, token='%s'\n", log->num_file_entries, nl, consumed, token);
+				u2up_log_debug("num_file_entries=%d, nl=%p, consumed=%d, token='%s'\n", log->num_file_entries, nl, consumed, token);
 				nl = strchr(token, '\n');
 			}
 			if (nl == NULL) {
 				clisrv_strncat(line, &buff[consumed], CLISRV_MAX_CMDSZ);
-				evm_log_debug("nl=%p, consumed=%d, line='%s'\n", nl, consumed, line);
+				u2up_log_debug("nl=%p, consumed=%d, line='%s'\n", nl, consumed, line);
 				buff[0] = '\0';
 			}
 		}
@@ -136,7 +136,7 @@ static int initCmdLineLog(char *fileName, int logTrimLines)
 			break;
 	}
 	if ((*tmp = (netsimCliLogEntryStruct *)calloc(1, sizeof(netsimCliLogEntryStruct))) == NULL) {
-		evm_log_system_error("calloc() - Log entry struct\n");
+		u2up_log_system_error("calloc() - Log entry struct\n");
 		abort();
 	}
 	(*tmp)->prev = prev;
@@ -155,12 +155,12 @@ static int initCmdLineLog(char *fileName, int logTrimLines)
 			log->first->next = next;
 			next->prev = log->first;
 		}
-		evm_log_debug("Removing first %d entries (num_file_entries=%d)\n", (log->num_file_entries - logTrimLines), logTrimLines);
+		u2up_log_debug("Removing first %d entries (num_file_entries=%d)\n", (log->num_file_entries - logTrimLines), logTrimLines);
 		log->num_file_entries = logTrimLines;
 		fclose(log->file);
 		log->file = fopen(fileName, "w");
 		if (log->file == NULL) {
-			evm_log_system_error("fopen()\n");
+			u2up_log_system_error("fopen()\n");
 			return -1;
 		}
 		next = log->first->next;
@@ -176,7 +176,7 @@ static int initCmdLineLog(char *fileName, int logTrimLines)
 		fclose(log->file);
 		log->file = fopen(fileName, "a+");
 		if (log->file == NULL) {
-			evm_log_system_error("fopen()\n");
+			u2up_log_system_error("fopen()\n");
 			return -1;
 		}
 	}
@@ -210,14 +210,14 @@ static int saveCmdLineLog(char *cmdline, netsimCliLogStruct *log)
 	if ((cmdlen = strlen(cmdline) - 1) <= 0)
 		return 0;
 
-	evm_log_debug("cmdlen=%d\n", cmdlen);
+	u2up_log_debug("cmdlen=%d\n", cmdlen);
 	prev = log->last->prev;
 	if (prev->entry != NULL) {
 		if ((prevEntry = strstr(prev->entry, CLISRV_RTSM)) != NULL)
 			prevEntry += 2;
 		else
 			prevEntry = prev->entry;
-		evm_log_debug("prevLen=%d, prevEntry=%s\n", strlen(prevEntry), prevEntry);
+		u2up_log_debug("prevLen=%zu, prevEntry=%s\n", strlen(prevEntry), prevEntry);
 		if ((strlen(cmdline) == (strlen(prevEntry) + 1)) && (strncmp(cmdline, prevEntry, cmdlen) == 0))
 			return 0;
 	}
@@ -226,26 +226,26 @@ static int saveCmdLineLog(char *cmdline, netsimCliLogStruct *log)
 	t = time(NULL);
 	ptm = localtime(&t);
 	if (ptm == NULL) {
-		evm_log_system_error("localtime() - Log entry new time-stamp\n");
+		u2up_log_system_error("localtime() - Log entry new time-stamp\n");
 		abort();
 	}
 	if (strftime(tsStr, sizeof(tsStr), CLISRV_LTSM CLISRV_TSF CLISRV_RTSM, ptm) == 0) {
-		evm_log_error("strftime() returned 0\n");
+		u2up_log_error("strftime() returned 0\n");
 		abort();
 	}
 	tslen = strlen(tsStr);
-	evm_log_debug("tslen=%d\n", tslen);
+	u2up_log_debug("tslen=%d\n", tslen);
 
 	tmp = &(prev->next);
 	if ((*tmp = (netsimCliLogEntryStruct *)calloc(1, sizeof(netsimCliLogEntryStruct))) == NULL) {
-		evm_log_system_error("calloc() - Log entry struct\n");
+		u2up_log_system_error("calloc() - Log entry struct\n");
 		abort();
 	}
 	(*tmp)->prev = prev;
 	(*tmp)->next = log->last;
 	log->last->prev = *tmp;
 	if (((*tmp)->entry = (char *)calloc((tslen + cmdlen + 1), sizeof(char))) == NULL) {
-		evm_log_system_error("calloc() - Log entry new time-stamp and cmdline\n");
+		u2up_log_system_error("calloc() - Log entry new time-stamp and cmdline\n");
 		abort();
 	}
 	strncpy((*tmp)->entry, tsStr, tslen);
@@ -264,19 +264,19 @@ static char getchr()
 	struct termios old = {0};
 
 	if (tcgetattr(0, &old) < 0)
-		evm_log_return_system_err("tcsetattr()\n");
+		u2up_log_return_system_err("tcsetattr()\n");
 	old.c_lflag &= ~ICANON;
 	old.c_lflag &= ~ECHO;
 	old.c_cc[VMIN] = 1;
 	old.c_cc[VTIME] = 0;
 	if (tcsetattr(0, TCSANOW, &old) < 0)
-		evm_log_return_system_err("tcsetattr() ICANON\n");
+		u2up_log_return_system_err("tcsetattr() ICANON\n");
 	if (read(0, &buf, 1) < 0)
-		evm_log_return_system_err("read()\n");
+		u2up_log_return_system_err("read()\n");
 	old.c_lflag |= ICANON;
 	old.c_lflag |= ECHO;
 	if (tcsetattr(0, TCSADRAIN, &old) < 0)
-		evm_log_return_system_err("tcsetattr() ~ICANON\n");
+		u2up_log_return_system_err("tcsetattr() ~ICANON\n");
 	return buf;
 }
 
@@ -292,13 +292,13 @@ static char getchr()
 static int evaluate4char_sequence(char *const line, int i, char *const rline, int *const rip)
 {
 	int j;
-	evm_log_info("(entry) i=%d\n", i);
+	u2up_log_info("(entry) i=%d\n", i);
 
 	if (line[i] == '\0')
 		return i;
 
 	if (i < 2) {
-		evm_log_debug("Called with wrong index (i=%d)\n", i);
+		u2up_log_debug("Called with wrong index (i=%d)\n", i);
 		return i;
 	}
 
@@ -310,7 +310,7 @@ static int evaluate4char_sequence(char *const line, int i, char *const rline, in
 	) {
 		if (line[i] == 126 /*'~'*/) {
 			/* evaluate 'DEL' key */
-			evm_log_debug("Key DEL pressed\n");
+			u2up_log_debug("Key DEL pressed\n");
 			REMOVE_FROM_LINE(line, i, 3);
 			if (rline[*rip] != '\0') {
 				(*rip)++;
@@ -321,7 +321,7 @@ static int evaluate4char_sequence(char *const line, int i, char *const rline, in
 				fflush(stdout);
 			}
 		} else {
-			evm_log_debug("Unknown 4-char ESC sequence received!\n");
+			u2up_log_debug("Unknown 4-char ESC sequence received!\n");
 			REMOVE_FROM_LINE(line, i, 3);
 		}
 	}
@@ -333,13 +333,13 @@ static netsimCliLogEntryStruct *cliLogEntryCurrent = NULL;
 static int evaluate3char_sequence(char *const line, int i, char *const rline, int *const rip)
 {
 	char *cmdEntry;
-	evm_log_info("(entry) i=%d\n", i);
+	u2up_log_info("(entry) i=%d\n", i);
 
 	if (line[i] == '\0')
 		return i;
 
 	if (i < 2) {
-		evm_log_debug("Called with wrong index (i=%d)\n", i);
+		u2up_log_debug("Called with wrong index (i=%d)\n", i);
 		return i;
 	}
 
@@ -347,17 +347,17 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 	if ((line[i - 2] == 27 /*ESC*/) && (line[i - 1] == 91 /*'['*/)) {
 		/* evaluate 'arrow keys' */
 		if (line[i] == 65 /*'A'*/) {
-			evm_log_debug("Key UP pressed\n");
+			u2up_log_debug("Key UP pressed\n");
 			REMOVE_FROM_LINE(line, i, 2);
 			line[i] = '\0';
 			if (cliLogEntryCurrent == NULL) {
 				cliLogEntryCurrent = netsimCliLog.last;
-				evm_log_debug("Initialized cliLogEntryCurrent to last (dummy)!'\n");
+				u2up_log_debug("Initialized cliLogEntryCurrent to last (dummy)!'\n");
 			}
 			if (cliLogEntryCurrent != cliLogEntryCurrent->prev) {
 				if (i > 0) {
 					clisrv_strncat(line, &rline[*rip], CLISRV_MAX_CMDSZ);
-					evm_log_debug("old-line='%s'\n", line);
+					u2up_log_debug("old-line='%s'\n", line);
 					printf("%s", &rline[*rip]);
 					fflush(stdout);
 					*rip = CLISRV_MAX_CMDSZ - 1;
@@ -379,7 +379,7 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 					else
 						cmdEntry = cliLogEntryCurrent->entry;
 					clisrv_strncat(line, cmdEntry, CLISRV_MAX_CMDSZ);
-					evm_log_debug("new-line='%s'\n", line);
+					u2up_log_debug("new-line='%s'\n", line);
 					i = strlen(line);
 					line[i] = '\0';
 					printf("%s", line);
@@ -388,19 +388,19 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == 66 /*'B'*/) {
-			evm_log_debug("Key DOWN pressed\n");
+			u2up_log_debug("Key DOWN pressed\n");
 			REMOVE_FROM_LINE(line, i, 2);
 			line[i] = '\0';
 			if (cliLogEntryCurrent == NULL) {
 				cliLogEntryCurrent = netsimCliLog.last;
-				evm_log_debug("Initialized cliLogEntryCurrent to last (dummy)!'\n");
+				u2up_log_debug("Initialized cliLogEntryCurrent to last (dummy)!'\n");
 			}
 			if (cliLogEntryCurrent == cliLogEntryCurrent->prev)
 				cliLogEntryCurrent = cliLogEntryCurrent->next;
 			if (cliLogEntryCurrent != cliLogEntryCurrent->next) {
 				if (i > 0) {
 					clisrv_strncat(line, &rline[*rip], CLISRV_MAX_CMDSZ);
-					evm_log_debug("old-line='%s'\n", line);
+					u2up_log_debug("old-line='%s'\n", line);
 					printf("%s", &rline[*rip]);
 					fflush(stdout);
 					*rip = CLISRV_MAX_CMDSZ - 1;
@@ -418,7 +418,7 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 					else
 						cmdEntry = cliLogEntryCurrent->entry;
 					clisrv_strncat(line, cmdEntry, CLISRV_MAX_CMDSZ);
-					evm_log_debug("new-line='%s'\n", line);
+					u2up_log_debug("new-line='%s'\n", line);
 					i = strlen(line);
 					line[i] = '\0';
 					printf("%s", line);
@@ -439,7 +439,7 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == 67 /*'C'*/) {
-			evm_log_debug("Key RIGHT pressed\n");
+			u2up_log_debug("Key RIGHT pressed\n");
 			REMOVE_FROM_LINE(line, i, 2);
 			if ((i < (CLISRV_MAX_CMDSZ - 1)) && (rline[*rip] != '\0')) {
 				line[i] = rline[*rip];
@@ -451,7 +451,7 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == 68 /*'D'*/) {
-			evm_log_debug("Key LEFT pressed\n");
+			u2up_log_debug("Key LEFT pressed\n");
 			REMOVE_FROM_LINE(line, i, 2);
 			if ((i > 0) && (*rip > 0)) {
 				i--;
@@ -463,7 +463,7 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == 70 /*End*/) {
-			evm_log_debug("Key END pressed\n");
+			u2up_log_debug("Key END pressed\n");
 			REMOVE_FROM_LINE(line, i, 2);
 			while ((i < (CLISRV_MAX_CMDSZ - 1)) && (rline[*rip] != '\0')) {
 				line[i] = rline[*rip];
@@ -475,7 +475,7 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == 72 /*Home*/) {
-			evm_log_debug("Key HOME pressed\n");
+			u2up_log_debug("Key HOME pressed\n");
 			REMOVE_FROM_LINE(line, i, 2);
 			while ((i > 0) && (*rip > 0)) {
 				i--;
@@ -487,10 +487,10 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == 51 /*'3'*/) {
-			evm_log_debug("Potential 4-char ESC sequence\n");
+			u2up_log_debug("Potential 4-char ESC sequence\n");
 			i++;
 		} else {
-			evm_log_debug("Unknown 3 chars ESC sequence received!\n");
+			u2up_log_debug("Unknown 3 chars ESC sequence received!\n");
 			REMOVE_FROM_LINE(line, i, 2);
 		}
 	}
@@ -499,25 +499,25 @@ static int evaluate3char_sequence(char *const line, int i, char *const rline, in
 
 static int evaluate2char_sequence(char *const line, int i, char *const rline, int *const rip)
 {
-	evm_log_info("(entry) i=%d\n", i);
+	u2up_log_info("(entry) i=%d\n", i);
 
 	if (line[i] == '\0')
 		return i;
 
 	if (i < 1) {
-		evm_log_debug("Called with wrong index (i=%d)\n", i);
+		u2up_log_debug("Called with wrong index (i=%d)\n", i);
 		return i;
 	}
 
 #if 0
 	if ((i >= 2) && (line[i - 2] == 27 /*ESC*/)) {
-		evm_log_debug("Potentially 4-char ESC sequence\n");
+		u2up_log_debug("Potentially 4-char ESC sequence\n");
 		i++;
 		return i;
 	}
 
 	if ((i >= 1) && (line[i - 1] == 27 /*ESC*/)) {
-		evm_log_debug("Potentially 3-char ESC sequence\n");
+		u2up_log_debug("Potentially 3-char ESC sequence\n");
 		i++;
 		return i;
 	}
@@ -526,11 +526,11 @@ static int evaluate2char_sequence(char *const line, int i, char *const rline, in
 	/* Check if 2-char ESC sequence */
 	if (line[i - 1] == 27 /*ESC*/) {
 		if (line[i] == 91 /*'['*/) {
-			evm_log_debug("Proper ESC sequence start detected: 'ESC-['\n");
+			u2up_log_debug("Proper ESC sequence start detected: 'ESC-['\n");
 			i++;
 		} else {
 			/* evaluate '2-char' sequence */
-			evm_log_debug("Unexpected 2-char sequence: 'ESC'-%d\n", line[i]);
+			u2up_log_debug("Unexpected 2-char sequence: 'ESC'-%d\n", line[i]);
 			REMOVE_FROM_LINE(line, i, 1);
 		}
 	}
@@ -540,13 +540,13 @@ static int evaluate2char_sequence(char *const line, int i, char *const rline, in
 static int evaluate1char_sequence(char *const line, int i, char *const rline, int *const rip)
 {
 	int j;
-	evm_log_info("(entry) i=%d\n", i);
+	u2up_log_info("(entry) i=%d\n", i);
 
 	if (line[i] == '\0')
 		return i;
 
 	if (i < 0) {
-		evm_log_debug("Error - abort: Called with negative line position index (i=%d)\n", i);
+		u2up_log_debug("Error - abort: Called with negative line position index (i=%d)\n", i);
 		return i;
 	}
 
@@ -556,21 +556,21 @@ static int evaluate1char_sequence(char *const line, int i, char *const rline, in
 			line[i - 1] = line[i];
 			line[i] = '\0';
 			i--;
-			evm_log_debug("Removed previous TAB input (i=%d)\n", i);
+			u2up_log_debug("Removed previous TAB input (i=%d)\n", i);
 		}
 	}
 
 	if (line[i - 0] == 27 /*ESC*/) {
 		/* Extra ESC-... handling */
-		evm_log_debug("Potential ESC sequence start\n");
+		u2up_log_debug("Potential ESC sequence start\n");
 		i++;
 		return i;
 	}
 
 	if (isprint(line[i])) {
 		/* Printable single character input */
-		evm_log_debug("Printable character input\n");
-		evm_log_debug("Key '%c' pressed\n", line[i]);
+		u2up_log_debug("Printable character input\n");
+		u2up_log_debug("Key '%c' pressed\n", line[i]);
 		printf("%c%s", line[i], &rline[*rip]);
 		for (j = 0; j < strlen(&rline[*rip]); j++)
 			printf("\b");
@@ -578,13 +578,13 @@ static int evaluate1char_sequence(char *const line, int i, char *const rline, in
 		i++;
 	} else {
 		/* Non-printable single character input */
-		evm_log_debug("Non-printable character input\n");
+		u2up_log_debug("Non-printable character input\n");
 		if (line[i] == '\t') {
-			evm_log_debug("Key TAB pressed\n");
+			u2up_log_debug("Key TAB pressed\n");
 			i++;
 		} else
 		if (line[i] == 127) {
-			evm_log_debug("Key BACKSPACE pressed\n");
+			u2up_log_debug("Key BACKSPACE pressed\n");
 			line[i] = '\0';
 			if (i > 0) {
 				i--;
@@ -598,7 +598,7 @@ static int evaluate1char_sequence(char *const line, int i, char *const rline, in
 			}
 		} else
 		if (line[i] == '\n') {
-			evm_log_debug("Key ENTER pressed (i=%d, *rip=%d)\n", i, *rip);
+			u2up_log_debug("Key ENTER pressed (i=%d, *rip=%d)\n", i, *rip);
 			line[i] = '\0';
 			clisrv_strncat(line, &rline[*rip], CLISRV_MAX_CMDSZ);
 			*rip = CLISRV_MAX_CMDSZ - 1;
@@ -613,11 +613,11 @@ static int evaluate1char_sequence(char *const line, int i, char *const rline, in
 			printf("\n");
 			fflush(stdout);
 			if (saveCmdLineLog(line, &netsimCliLog) == 0) {
-				evm_log_debug("Successfully saved new cmdline!\n");
+				u2up_log_debug("Successfully saved new cmdline!\n");
 			}
 			cliLogEntryCurrent = netsimCliLog.last;
 		} else {
-			evm_log_debug("Unexpected Key (%d) pressed\n", line[i]);
+			u2up_log_debug("Unexpected Key (%d) pressed\n", line[i]);
 		}
 	}
 
@@ -647,11 +647,11 @@ static int getherCmdLine(char * const cmdline, int size)
 
 	do {
 		line[i] = getchr();
-		evm_log_debug("line[%d]=%d\n", i, line[i]);
+		u2up_log_debug("line[%d]=%d\n", i, line[i]);
 		if ((i + 1)  < size)
 			line[i + 1] = '\0';
 		else {
-			evm_log_debug("Error - abort: Line too long (i=%d)\n", i);
+			u2up_log_debug("Error - abort: Line too long (i=%d)\n", i);
 			abort();
 		}
 
@@ -660,7 +660,7 @@ static int getherCmdLine(char * const cmdline, int size)
 		 */
 		/* Start with longest ESC sequences (4-chars) */
 		if (i >= 3) {
-			evm_log_debug("(i >= 3) i=%d, ri=%d\n", i, ri);
+			u2up_log_debug("(i >= 3) i=%d, ri=%d\n", i, ri);
 			i = evaluate4char_sequence(line, i, rline, &ri);
 			if (i >= 1) {
 				i = evaluate3char_sequence(line, i, rline, &ri);
@@ -673,7 +673,7 @@ static int getherCmdLine(char * const cmdline, int size)
 			}
 		} else
 		if (i >= 2) {
-			evm_log_debug("(i >= 2) i=%d, ri=%d\n", i, ri);
+			u2up_log_debug("(i >= 2) i=%d, ri=%d\n", i, ri);
 			i = evaluate3char_sequence(line, i, rline, &ri);
 			if (i >= 1) {
 				i = evaluate2char_sequence(line, i, rline, &ri);
@@ -683,17 +683,17 @@ static int getherCmdLine(char * const cmdline, int size)
 			}
 		} else
 		if (i >= 1) {
-			evm_log_debug("(i >= 1) i=%d, ri=%d\n", i, ri);
+			u2up_log_debug("(i >= 1) i=%d, ri=%d\n", i, ri);
 			i = evaluate2char_sequence(line, i, rline, &ri);
 			if (i >= 0) {
 				i = evaluate1char_sequence(line, i, rline, &ri);
 			}
 		} else
 		if (i >= 0) {
-			evm_log_debug("(i >= 0) i=%d, ri=%d\n", i, ri);
+			u2up_log_debug("(i >= 0) i=%d, ri=%d\n", i, ri);
 			i = evaluate1char_sequence(line, i, rline, &ri);
 		} else {
-			evm_log_debug("Error - abort: negative line position index i=%d\n", i);
+			u2up_log_debug("Error - abort: negative line position index i=%d\n", i);
 			abort();
 		}
 
@@ -710,20 +710,20 @@ int processCliCmds(int sockfd, int (*cmd_send_receive)(int sock, char *snd_str, 
 	char snd_buf[CLISRV_MAX_CMDSZ] = "";
 	char rcv_buf[CLISRV_MAX_MSGSZ] = "";
 	char *pre_begin, *pre_end, *remain_str;
-	evm_log_info("(entry) sockfd=%d\n", sockfd);
+	u2up_log_info("(entry) sockfd=%d\n", sockfd);
 
 	printf(CLISRV_PROMPT);
 	fflush(stdout);
 	while (U2UP_CLI_TRUE) {
 		/* Gether-together a cmd-line */
 		if (getherCmdLine(snd_buf, CLISRV_MAX_CMDSZ) < 0) {
-			evm_log_error("getherCmdLine()\n");
+			u2up_log_error("getherCmdLine()\n");
 			return -1;
 		}
 
 		/* Call the socket Send-Receive callback! */
 		if (cmd_send_receive(sockfd, snd_buf, rcv_buf, sizeof(rcv_buf)) < 0) {
-			evm_log_error("cmd_send_receive()\n");
+			u2up_log_error("cmd_send_receive()\n");
 			return -1;
 		}
 
@@ -759,7 +759,7 @@ int processCliCmds(int sockfd, int (*cmd_send_receive)(int sock, char *snd_str, 
 		}
 		if (strlen(remain_str) >= strlen("<quit>")) {
 			if (strstr(remain_str, "<quit>") != NULL) {
-				evm_log_debug("quit command confirmation received - exit!\n");
+				u2up_log_debug("quit command confirmation received - exit!\n");
 				fflush(stdout);
 				break;
 			}
