@@ -5,44 +5,47 @@ $ mkdir demo
 $ 
 
 $ 
-$ cd demo
+$ cd demo/
 demo$ 
 
 demo$ 
 demo$ git clone https://github.com/spog/u2up-cli-demo.git
 Cloning into 'u2up-cli-demo'...
-remote: Enumerating objects: 4, done.
-remote: Counting objects: 100% (4/4), done.
-remote: Compressing objects: 100% (4/4), done.
-remote: Total 4 (delta 0), reused 4 (delta 0), pack-reused 0
-Unpacking objects: 100% (4/4), done.
-demo$ 
-
-demo$ 
-demo$ ls -la
-skupno 12
-drwxr-xr-x   3 user user 4096 apr 26 12:03 .
-drwxr-xr-x 123 user user 4096 apr 26 12:00 ..
-drwxr-xr-x   3 user user 4096 apr 26 12:03 u2up-cli-demo
+remote: Enumerating objects: 20, done.
+remote: Counting objects: 100% (20/20), done.
+remote: Compressing objects: 100% (17/17), done.
+remote: Total 20 (delta 5), reused 18 (delta 3), pack-reused 0
+Unpacking objects: 100% (20/20), done.
 demo$ 
 
 demo$ 
 demo$ git clone https://github.com/spog/u2up-cli.git
 Cloning into 'u2up-cli'...
-remote: Enumerating objects: 21, done.
-remote: Counting objects: 100% (21/21), done.
-remote: Compressing objects: 100% (15/15), done.
-remote: Total 21 (delta 7), reused 19 (delta 5), pack-reused 0
-Unpacking objects: 100% (21/21), done.
+remote: Enumerating objects: 25, done.
+remote: Counting objects: 100% (25/25), done.
+remote: Compressing objects: 100% (18/18), done.
+remote: Total 25 (delta 10), reused 21 (delta 6), pack-reused 0
+Unpacking objects: 100% (25/25), done.
+demo$ 
+
+demo$ 
+demo$ git clone https://github.com/spog/u2up-log.git
+Cloning into 'u2up-log'...
+remote: Enumerating objects: 8, done.
+remote: Counting objects: 100% (8/8), done.
+remote: Compressing objects: 100% (6/6), done.
+remote: Total 8 (delta 2), reused 8 (delta 2), pack-reused 0
+Unpacking objects: 100% (8/8), done.
 demo$ 
 
 demo$ 
 demo$ ls -la
-skupno 16
-drwxr-xr-x   4 user user 4096 apr 26 12:06 .
-drwxr-xr-x 123 user user 4096 apr 26 12:05 ..
-drwxr-xr-x   3 user user 4096 apr 26 12:06 u2up-cli
-drwxr-xr-x   3 user user 4096 apr 26 12:03 u2up-cli-demo
+skupno 20
+drwxr-xr-x   5 samo samo 4096 apr 26 19:55 .
+drwxr-xr-x 123 samo samo 4096 apr 26 19:54 ..
+drwxr-xr-x   3 samo samo 4096 apr 26 19:55 u2up-cli
+drwxr-xr-x   3 samo samo 4096 apr 26 19:55 u2up-cli-demo
+drwxr-xr-x   3 samo samo 4096 apr 26 19:55 u2up-log
 demo$ 
 
 demo$ 
@@ -51,12 +54,13 @@ demo/u2up-cli-demo$
 
 demo/u2up-cli-demo$ 
 demo/u2up-cli-demo$ ls -la
-skupno 28
-drwxr-xr-x 3 user user 4096 apr 26 12:03 .
-drwxr-xr-x 4 user user 4096 apr 26 12:06 ..
-drwxr-xr-x 8 user user 4096 apr 26 12:03 .git
--rw-r--r-- 1 user user 8942 apr 26 12:03 hello-cli.c
--rw-r--r-- 1 user user  112 apr 26 12:03 README
+skupno 40
+drwxr-xr-x 3 samo samo  4096 apr 26 19:55 .
+drwxr-xr-x 5 samo samo  4096 apr 26 19:55 ..
+drwxr-xr-x 8 samo samo  4096 apr 26 19:55 .git
+-rw-r--r-- 1 samo samo  8994 apr 26 19:55 hello-cli.c
+-rw-r--r-- 1 samo samo 10175 apr 26 19:55 LICENSE
+-rw-r--r-- 1 samo samo  2991 apr 26 19:55 README
 demo/u2up-cli-demo$ 
 
 demo/u2up-cli-demo$ 
@@ -64,30 +68,24 @@ demo/u2up-cli-demo$ ln -s ../u2up-cli u2up-cli
 demo/u2up-cli-demo$ 
 
 demo/u2up-cli-demo$ 
+demo/u2up-cli-demo$ ln -s ../u2up-log u2up-log
+demo/u2up-cli-demo$ 
+
+demo/u2up-cli-demo$ 
 demo/u2up-cli-demo$ ls -la
-skupno 28
-drwxr-xr-x 3 user user 4096 apr 26 12:07 .
-drwxr-xr-x 4 user user 4096 apr 26 12:06 ..
-drwxr-xr-x 8 user user 4096 apr 26 12:03 .git
--rw-r--r-- 1 user user 8942 apr 26 12:03 hello-cli.c
--rw-r--r-- 1 user user  112 apr 26 12:03 README
-lrwxrwxrwx 1 user user   11 apr 26 12:07 u2up-cli -> ../u2up-cli
+skupno 40
+drwxr-xr-x 3 samo samo  4096 apr 26 19:56 .
+drwxr-xr-x 5 samo samo  4096 apr 26 19:55 ..
+drwxr-xr-x 8 samo samo  4096 apr 26 19:55 .git
+-rw-r--r-- 1 samo samo  8994 apr 26 19:55 hello-cli.c
+-rw-r--r-- 1 samo samo 10175 apr 26 19:55 LICENSE
+-rw-r--r-- 1 samo samo  2991 apr 26 19:55 README
+lrwxrwxrwx 1 samo samo    11 apr 26 19:56 u2up-cli -> ../u2up-cli
+lrwxrwxrwx 1 samo samo    11 apr 26 19:56 u2up-log -> ../u2up-log
 demo/u2up-cli-demo$ 
 
 demo/u2up-cli-demo$ 
 demo/u2up-cli-demo$ gcc -o hello-cli -I ./ -DU2UP_LOG_MODULE_DEBUG=1 -DU2UP_LOG_MODULE_TRACE=1 -g hello-cli.c
-demo/u2up-cli-demo$ 
-
-demo/u2up-cli-demo$ 
-demo/u2up-cli-demo$ ls -la
-skupno 380
-drwxr-xr-x 3 user user   4096 apr 26 12:08 .
-drwxr-xr-x 4 user user   4096 apr 26 12:06 ..
-drwxr-xr-x 8 user user   4096 apr 26 12:03 .git
--rwxr-xr-x 1 user user 358672 apr 26 12:08 hello-cli
--rw-r--r-- 1 user user   8942 apr 26 12:03 hello-cli.c
--rw-r--r-- 1 user user    112 apr 26 12:03 README
-lrwxrwxrwx 1 user user     11 apr 26 12:07 u2up-cli -> ../u2up-cli
 demo/u2up-cli-demo$ 
 
 demo/u2up-cli-demo$ 
@@ -101,13 +99,26 @@ test3
 netsim-cli> test 
 error: unknown command
 netsim-cli>  
+netsim-cli>  
 netsim-cli> test1  
 {a=%8x | b=%u} {c | d}
-netsim-cli> test1 a=1 c
+netsim-cli> test1  
+Missing command arguments!
+error: invalid command syntax
+netsim-cli> test 
+test1 
+test2 
+test3 
+netsim-cli> test1 a=2ef
 test1 command handle called!'
-test1 command parameter (a=00000001)!'
-test1 command parameter (c)!'
+test1 command parameter (a=000002ef)!'
+error: invalid command syntax
 netsim-cli>  
+netsim-cli>  
+netsim-cli> test1 a=2ef c
+test1 command handle called!'
+test1 command parameter (a=000002ef)!'
+test1 command parameter (c)!'
 netsim-cli>  
 netsim-cli>  
 demo/u2up-cli-demo$ 
