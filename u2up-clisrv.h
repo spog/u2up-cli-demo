@@ -117,16 +117,16 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 	remain = pconn->tokens + pconn->rcvlen + 1 - next_token;
 
 #if 1
-	printf("1 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
+	evm_log_debug("1 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
 	{
 		int rv = 0;
 		char *cmd_token = pconn->tokens;
 		while (rv < pconn->nr_tokens) {
-			printf("'%s' ", cmd_token);
+			evm_log_debug("'%s' ", cmd_token);
 			cmd_token += (strlen(cmd_token) + 1);
 			rv++;
 		}
-		printf("\n");
+		evm_log_debug("\n");
 	}
 #endif
 	for (i = 0; i < remain; i++) {
@@ -134,16 +134,16 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 	}
 	pconn->nr_tokens--;
 #if 1
-	printf("2 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
+	evm_log_debug("2 - pconn->nr_tokens=%d: ", pconn->nr_tokens);
 	{
 		int rv = 0;
 		char *cmd_token = pconn->tokens;
 		while (rv < pconn->nr_tokens) {
-			printf("'%s' ", cmd_token);
+			evm_log_debug("'%s' ", cmd_token);
 			cmd_token += (strlen(cmd_token) + 1);
 			rv++;
 		}
-		printf("\n");
+		evm_log_debug("\n");
 	}
 #endif
 
@@ -152,7 +152,7 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 
 void freePcmdCurrentTokens(clisrv_token_struct **curr_tokens)
 {
-	printf("freePcmdCurrentTokens: entry\n");
+	evm_log_info("freePcmdCurrentTokens: entry\n");
 	/* Recursive freing */
 	if (curr_tokens != NULL) {
 		if (*curr_tokens != NULL) {
@@ -215,12 +215,12 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 			return NULL;
 #endif
 #if 0
-	printf("(pcmd_token=%p) '%s'\n", pcmd_token, pcmd_token->strval);
-	printf(" level=%d\n", pcmd_token->level);
-	printf(" mand=%d\n", pcmd_token->mand);
-	printf(" opti=%d\n", pcmd_token->opti);
-	printf(" altr=%d\n", pcmd_token->altr);
-	printf("\n");
+	evm_log_debug("(pcmd_token=%p) '%s'\n", pcmd_token, pcmd_token->strval);
+	evm_log_debug(" level=%d\n", pcmd_token->level);
+	evm_log_debug(" mand=%d\n", pcmd_token->mand);
+	evm_log_debug(" opti=%d\n", pcmd_token->opti);
+	evm_log_debug(" altr=%d\n", pcmd_token->altr);
+	evm_log_debug("\n");
 #endif
 
 	last = curr_tokens;
@@ -229,25 +229,21 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 	}
 
 #if 0
-	printf("(last=%p) '%s'\n", last, last->strval);
-	printf(" level=%d\n", last->level);
-	printf(" mand=%d\n", last->mand);
-	printf(" opti=%d\n", last->opti);
-	printf(" altr=%d\n", last->altr);
-	printf("\n");
+	evm_log_debug("(last=%p) '%s'\n", last, last->strval);
+	evm_log_debug(" level=%d\n", last->level);
+	evm_log_debug(" mand=%d\n", last->mand);
+	evm_log_debug(" opti=%d\n", last->opti);
+	evm_log_debug(" altr=%d\n", last->altr);
+	evm_log_debug("\n");
 #endif
-#if 1
+
 	if (pconn->nr_tokens == 0) {
 		if ((pcmd_token->opti <= pcmd_token->mand) && (pcmd_token->altr == 0)) {
-//	if ((last->opti <= last->mand) && (last->altr == 0)) {
-//		if (pconn->nr_tokens == 0) {
 			/*ERROR: mandatory command arguments required, but no more pconn tokens provided */
-			printf("mandatory command arguments required, but no more pconn tokens provided\n");
 			evm_log_debug("mandatory command arguments required, but no more pconn tokens provided\n");
 			return NULL;
 		}
 	}
-#endif
 
 	i = pconn->nr_tokens;
 	token = pconn->tokens;
@@ -743,62 +739,52 @@ static clisrv_cmd_struct * tokenizeCliCmd(char *clicmd)
 		abort();
 	}
 
-#if 1 /*test init result*/
+#if 0 /*test init result*/
 	{
 		clisrv_token_struct *token = tmp->tokens;
-		printf("pcmd tokens:\n");
+		evm_log_debug("pcmd tokens:\n");
 		while (token != NULL) {
-#if 0
-			if (
-				(token->type == CLISRV_CMD) ||
-				(token->type == CLISRV_ARG) ||
-				(token->type == CLISRV_VAL)
-			   ) {
-				printf("%s ", token->strval);
-			}
-#else
-			printf("tokenize cmd: %s\n", clicmd);
+			evm_log_debug("tokenize cmd: %s\n", clicmd);
 			switch (token->type) {
 			case CLISRV_CMD:
-				printf("COMMAND:\n");
+				evm_log_debug("COMMAND:\n");
 				break;
 			case CLISRV_ARG:
-				printf("ARGUMENT NAME:\n");
+				evm_log_debug("ARGUMENT NAME:\n");
 				break;
 			case CLISRV_VAL:
-				printf("ARGUMENT VALUE:\n");
+				evm_log_debug("ARGUMENT VALUE:\n");
 				break;
 			case CLISRV_EQUALS:
-				printf("EQUALS:\n");
+				evm_log_debug("EQUALS:\n");
 				break;
 			case CLISRV_SQUARE_L:
-				printf("OPTIONALY BEGIN:\n");
+				evm_log_debug("OPTIONALY BEGIN:\n");
 				break;
 			case CLISRV_SQUARE_R:
-				printf("OPTIONALY END:\n");
+				evm_log_debug("OPTIONALY END:\n");
 				break;
 			case CLISRV_CURLY_L:
-				printf("MANDATORY BEGIN:\n");
+				evm_log_debug("MANDATORY BEGIN:\n");
 				break;
 			case CLISRV_CURLY_R:
-				printf("MANDATORY END:\n");
+				evm_log_debug("MANDATORY END:\n");
 				break;
 			case CLISRV_VERTBAR:
-				printf("VERTBAR:\n");
+				evm_log_debug("VERTBAR:\n");
 				break;
 			}
-			printf("(%p) '%s'\n", token, token->strval);
-			printf(" base=%p\n", token->base);
-			printf(" next=%p\n", token->next);
-			printf(" level=%d\n", token->level);
-			printf(" mand=%d\n", token->mand);
-			printf(" opti=%d\n", token->opti);
-			printf(" altr=%d\n", token->altr);
-			printf("\n");
-#endif
+			evm_log_debug("(%p) '%s'\n", token, token->strval);
+			evm_log_debug(" base=%p\n", token->base);
+			evm_log_debug(" next=%p\n", token->next);
+			evm_log_debug(" level=%d\n", token->level);
+			evm_log_debug(" mand=%d\n", token->mand);
+			evm_log_debug(" opti=%d\n", token->opti);
+			evm_log_debug(" altr=%d\n", token->altr);
+			evm_log_debug("\n");
 			token = token->next;
 		}
-		printf("\n");
+		evm_log_debug("\n");
 	}
 #endif
 
@@ -835,12 +821,12 @@ static clisrv_cmds_struct * tokenizeCliCmds(char *clicmds[])
 		i++;
 	}
 	pcmds->nr_cmds = i;
-#if 1
-	printf("nr_cmds=%d\n", pcmds->nr_cmds);
+#if 0
+	evm_log_debug("nr_cmds=%d\n", pcmds->nr_cmds);
 	tmp = &pcmds->first;
 	i = 0;
 	while ((*tmp) != NULL) {
-		printf("cmd[%d]\n", i);
+		evm_log_debug("cmd[%d]\n", i);
 		tmp = &(*tmp)->next;
 		i++;
 	}
@@ -874,7 +860,7 @@ static int tokenizeCmdLine(clisrv_pconn_struct *pconn)
 	pconn->nr_tokens = 0;
 	while (*tmp != '\0') {
 #if 0
-		printf("tmp='%s'\n", tmp);
+		evm_log_debug("tmp='%s'\n", tmp);
 #endif
 		switch (*tmp) {
 		case ' ':
@@ -906,7 +892,7 @@ static int tokenizeCmdLine(clisrv_pconn_struct *pconn)
 					}
 				} while (squeeze == U2UP_CLI_TRUE);
 #if 0
-				printf("tmp:'%s'\n", tmp);
+				evm_log_debug("tmp:'%s'\n", tmp);
 #endif
 				if (*(tmp + 1) == '=') {
 					*tmp = '=';
@@ -957,7 +943,7 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 		return -1;
 	}
 
-	printf("TEST: setCliCmdAutoSuggestByToken()\n");
+	evm_log_debug("TEST: setCliCmdAutoSuggestByToken()\n");
 	pcmd_token = pcmd_tokens->next;
 	while (pcmd_token != NULL) {
 		if (
@@ -968,16 +954,16 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 			continue;
 		}
 		strval = pcmd_token->strval;
-		printf("AutoSuggest - strval: '%s'\n", strval);
-		printf("AutoSuggest - Comparing-opts: strval=%s, token=%s\n", strval, token);
+		evm_log_debug("AutoSuggest - strval: '%s'\n", strval);
+		evm_log_debug("AutoSuggest - Comparing-opts: strval=%s, token=%s\n", strval, token);
 		/* Force multi-match, if token empty! */
 		if (strlen(token) == 0)
 			opt_part_found++;
 		if (strlen(strval) >= strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				printf("AutoSuggest - opts - partially compared: strval=%s, token=%s\n", strval, token);
+				evm_log_debug("AutoSuggest - opts - partially compared: strval=%s, token=%s\n", strval, token);
 				opt_part_found++;
-				printf("AutoSuggest - opts - buff-1: '%s'\n", buff);
+				evm_log_debug("AutoSuggest - opts - buff-1: '%s'\n", buff);
 #if 0
 				if (strlen(strval) == strlen(token)) {
 					opt_found = 1;
@@ -1000,10 +986,10 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 				continue;
 			}
 			strval = pcmd_token->strval;
-			printf("AutoSuggest - strval: '%s'\n", strval);
+			evm_log_debug("AutoSuggest - strval: '%s'\n", strval);
 			if (braces == 0)
 				clisrv_strncat(buff, "\n", size);
-			printf("AutoSuggest - buff-2: '%s'\n", buff);
+			evm_log_debug("AutoSuggest - buff-2: '%s'\n", buff);
 			if (
 				(pcmd_token->base->type != CLISRV_CMD) &&
 				(pcmd_token->base->type != CLISRV_ARG)
@@ -1038,7 +1024,7 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 							break;
 						case CLISRV_CURLY_L:
 							braces++;
-							printf("AutoSuggest - curly brace left: strlen(buff)=%ld, buff='%s'\n", strlen(buff), buff);
+							evm_log_debug("AutoSuggest - curly brace left: strlen(buff)=%ld, buff='%s'\n", strlen(buff), buff);
 							if ((strlen(buff) > 0) && (buff[strlen(buff) - 1] != '\n'))
 								clisrv_strncat(buff, " {", size);
 							else
@@ -1071,10 +1057,10 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 						}
 			}
 
-			printf("AutoSuggest - opts - buff-4: '%s'\n", buff);
+			evm_log_debug("AutoSuggest - opts - buff-4: '%s'\n", buff);
 			if (buff[strlen(buff) - 1] != '=')
 				clisrv_strncat(buff, " ", size);
-			printf("AutoSuggest - opts - buff-5: '%s'\n", buff);
+			evm_log_debug("AutoSuggest - opts - buff-5: '%s'\n", buff);
 			pcmd_token = pcmd_token->next;
 		}
 	}
@@ -1105,7 +1091,7 @@ static int setCliCmdAutoCompleteByToken(clisrv_token_struct *pcmd_tokens, clisrv
 		return -1;
 	}
 
-	printf("TEST: setCliCmdAutoCompleteByToken()\n");
+	evm_log_debug("TEST: setCliCmdAutoCompleteByToken()\n");
 	pcmd_token = pcmd_tokens->next;
 	while (pcmd_token != NULL) {
 		if (
@@ -1116,16 +1102,16 @@ static int setCliCmdAutoCompleteByToken(clisrv_token_struct *pcmd_tokens, clisrv
 			continue;
 		}
 		strval = pcmd_token->strval;
-		printf("%s\n", strval);
-		printf("AutoComplete - Comparing-opts: strval=%s, token=%s\n", strval, token);
+		evm_log_debug("%s\n", strval);
+		evm_log_debug("AutoComplete - Comparing-opts: strval=%s, token=%s\n", strval, token);
 		/* Force multi-match, if token empty! */
 		if (strlen(token) == 0)
 			opt_part_found++;
 		if (strlen(strval) >= strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				printf("AutoComplete - opts - partially compared: strval=%s, token=%s\n", strval, token);
+				evm_log_debug("AutoComplete - opts - partially compared: strval=%s, token=%s\n", strval, token);
 				opt_part_found++;
-				printf("AutoComplete - opts - buff-1: '%s'\n", buff);
+				evm_log_debug("AutoComplete - opts - buff-1: '%s'\n", buff);
 
 				if (strlen(strval) == strlen(token)) {
 					opt_found = 1;
@@ -1180,16 +1166,16 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 	pcmd = pcmds->first;
 	for (i = 0; i < pcmds->nr_cmds; i++) {
 		strval = pcmd->tokens->strval;
-		printf("%s\n", strval);
-		printf("Comparing-cmds: mode=%d, strval=%s, token=%s\n", mode, strval, token);
+		evm_log_debug("%s\n", strval);
+		evm_log_debug("Comparing-cmds: mode=%d, strval=%s, token=%s\n", mode, strval, token);
 		if (strlen(strval) >= strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				printf("cmds - partially compared: strval=%s, token=%s\n", strval, token);
+				evm_log_debug("cmds - partially compared: strval=%s, token=%s\n", strval, token);
 				cmd_part_found++;
-				printf("cmds - buff-1: '%s'\n", buff);
+				evm_log_debug("cmds - buff-1: '%s'\n", buff);
 
 				if (strlen(strval) == strlen(token)) {
-					printf("buff-2: '%s'\n", buff);
+					evm_log_debug("buff-2: '%s'\n", buff);
 					cmd_found = 1;
 					break;
 				}
@@ -1212,23 +1198,23 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 					clisrv_strncat(buff, "\n", size);
 					clisrv_strncat(buff, strval, size);
 
-					printf("cmds - buff-4: '%s'\n", buff);
+					evm_log_debug("cmds - buff-4: '%s'\n", buff);
 					clisrv_strncat(buff, " ", size);
-					printf("cmds - buff-5: '%s'\n", buff);
+					evm_log_debug("cmds - buff-5: '%s'\n", buff);
 				}
 			}
 		}
 		pcmd = pcmd->next;
 	}
 	if (cmd_found != 0) {
-		printf("fully compared: strval=%s, token(nr_tokens=%d)=%s\n", strval, pconn->nr_tokens, token);
+		evm_log_debug("fully compared: strval=%s, token(nr_tokens=%d)=%s\n", strval, pconn->nr_tokens, token);
 		if (pconn->nr_tokens > 0) {
 			i = 1;
 			token += (strlen(token) + 1);
 			while (i < pconn->nr_tokens) {
 				if (mode == CLISRV_AUTO_COMPLETE) {
 					opt_part_found = setCliCmdAutoCompleteByToken(pcmd->tokens, pconn, token, buff, size);
-					printf("2 - opt_part_found=%d\n", opt_part_found);
+					evm_log_debug("2 - opt_part_found=%d\n", opt_part_found);
 					if (strncmp(strval, token, size) == 0)
 						break;
 				}
@@ -1239,16 +1225,16 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 			}
 			if (mode == CLISRV_AUTO_SUGGEST) {
 				opt_part_found = setCliCmdAutoSuggestByToken(pcmd->tokens, pconn, token, buff, size);
-				printf("3 - opt_part_found=%d\n", opt_part_found);
+				evm_log_debug("3 - opt_part_found=%d\n", opt_part_found);
 			}
 		}
 	}
 
 	/* Adding additional space to auto-complete, if needed! */
 	if (mode == CLISRV_AUTO_COMPLETE) {
-		printf("checkend - pconn->rcv(sz=%ld): '%c' cmd_found=%d, cmd_part_found=%d, opt_part_found=%d\n",
+		evm_log_debug("checkend - pconn->rcv(sz=%ld): '%c' cmd_found=%d, cmd_part_found=%d, opt_part_found=%d\n",
 				strlen(pconn->rcv), pconn->rcv[strlen(pconn->rcv) - 2], cmd_found, cmd_part_found, opt_part_found);
-		printf("checkend - buff(len=%ld): '%c'\n", strlen(buff), buff[strlen(buff) - 1]);
+		evm_log_debug("checkend - buff(len=%ld): '%c'\n", strlen(buff), buff[strlen(buff) - 1]);
 		if (
 			((cmd_part_found == 1) || (opt_part_found == 1)) &&
 			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
@@ -1256,7 +1242,7 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 			(strlen(buff) > 0) &&
 			(buff[strlen(buff) - 1] != '=')
 		) {
-			printf("adding space 1\n");
+			evm_log_debug("adding space 1\n");
 			clisrv_strncat(buff, " ", size);
 		} else if (
 			((cmd_part_found == 1) && (opt_part_found == 1)) &&
@@ -1264,14 +1250,14 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 			(pconn->rcv[strlen(pconn->rcv) - 2] != '=') &&
 			(strlen(buff) == 0)
 		) {
-			printf("adding space 2\n");
+			evm_log_debug("adding space 2\n");
 			clisrv_strncat(buff, " ", size);
 		} else if (
 			((cmd_part_found == 1) && (opt_part_found == 0)) &&
 			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
 			(pconn->nr_tokens == 1)
 		) {
-			printf("adding space 3\n");
+			evm_log_debug("adding space 3\n");
 			clisrv_strncat(buff, " ", size);
 		}
 	}
@@ -1301,17 +1287,17 @@ static int autoCmdLine(clisrv_pconn_struct *pconn, int mode)
 
 	switch (mode) {
 	case CLISRV_AUTO_COMPLETE:
-		printf("Auto-Complete(len=%ld):'%s'\n", strlen(pconn->snd), pconn->snd);
-		printf("Auto-Complete(pconn->rcvlen=%d):'%s'\n", pconn->rcvlen, pconn->rcv);
+		evm_log_debug("Auto-Complete(len=%ld):'%s'\n", strlen(pconn->snd), pconn->snd);
+		evm_log_debug("Auto-Complete(pconn->rcvlen=%d):'%s'\n", pconn->rcvlen, pconn->rcv);
 		clisrv_strncat(pconn->snd, "\t", CLISRV_MAX_MSGSZ);
-		printf("Auto-Complete-send(len=1):'%s'\n", pconn->snd);
+		evm_log_debug("Auto-Complete-send(len=1):'%s'\n", pconn->snd);
 		pconn->sndsz = strlen(pconn->snd) + 1;
 		break;
 	case CLISRV_AUTO_SUGGEST:
 		{
 			clisrv_strncat(pconn->snd, "</pre>", CLISRV_MAX_MSGSZ);
 			clisrv_strncat(pconn->snd, pconn->rcv, CLISRV_MAX_MSGSZ);
-			printf("Auto-Suggest(len=%ld, pconn->rcvlen=%d):'%s'\n", strlen(pconn->snd), pconn->rcvlen, pconn->snd);
+			evm_log_debug("Auto-Suggest(len=%ld, pconn->rcvlen=%d):'%s'\n", strlen(pconn->snd), pconn->rcvlen, pconn->snd);
 			pconn->sndsz = strlen(pconn->snd) + 1;
 		}
 		break;
@@ -1349,11 +1335,11 @@ static int execCliCmdsTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pco
 	/* First check command */
 	for (i = 0; i < pcmds->nr_cmds; i++) {
 		strval = pcmd->tokens->strval;
-		printf("%s\n", strval);
-		printf("Comparing-cmds: strval='%s', token='%s'\n", strval, token);
+		evm_log_debug("%s\n", strval);
+		evm_log_debug("Comparing-cmds: strval='%s', token='%s'\n", strval, token);
 		if (strlen(strval) == strlen(token)) {
 			if (strncmp(strval, token, strlen(token)) == 0) {
-				printf("command found: cmd='%s'\n", token);
+				evm_log_debug("command found: cmd='%s'\n", token);
 				cmd_found = 1;
 				break;
 			}
@@ -1383,12 +1369,12 @@ static int execCmdLine(clisrv_pconn_struct *pconn)
 	evm_log_info("(entry) pconn=%p\n", pconn);
 
 	if (pconn == NULL) {
-		evm_log_error("Invalid argument pconn=%p\n", pconn);
+		evm_log_debug("Invalid argument pconn=%p\n", pconn);
 		return -1;
 	}
 
 	if ((rv = execCliCmdsTokens(clisrv_pcmds, pconn, buff, CLISRV_MAX_MSGSZ)) < 0) {
-		evm_log_error("execCliCmdsTokens() failed (rv=%d)\n", rv);
+		evm_log_debug("execCliCmdsTokens() failed (rv=%d)\n", rv);
 		switch (rv) {
 		case (-1):
 			clisrv_strncat(buff, "error: invalid execution call (check code)", CLISRV_MAX_MSGSZ);
@@ -1415,7 +1401,7 @@ static int execCmdLine(clisrv_pconn_struct *pconn)
 	if (close_conn != 0) {
 		clisrv_strncat(pconn->snd, "<quit>", CLISRV_MAX_MSGSZ);
 	}
-	printf("sending response: '%s'\n", pconn->snd);
+	evm_log_debug("sending response: '%s'\n", pconn->snd);
 	pconn->sndsz = strlen(pconn->snd) + 1;
 
 	return 0;
@@ -1433,11 +1419,11 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 
 	tokenizeCmdLine(pconn);
 #if 1
-	printf("pconn->tokens=%s, pconn->nr_tokens=%d\n", pconn->tokens, pconn->nr_tokens);
+	evm_log_debug("pconn->tokens=%s, pconn->nr_tokens=%d\n", pconn->tokens, pconn->nr_tokens);
 	{
 		char *token = pconn->tokens;
 		while (rv < pconn->nr_tokens) {
-			printf("%s\n", token);
+			evm_log_debug("%s\n", token);
 			token += (strlen(token) + 1);
 			rv++;
 		}
@@ -1445,8 +1431,8 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 	rv = 0;
 #endif
 
-	printf("pconn->rcvlen=%d'\n", pconn->rcvlen);
-	printf("pconn->rcv='%s'\n", pconn->rcv);
+	evm_log_debug("pconn->rcvlen=%d'\n", pconn->rcvlen);
+	evm_log_debug("pconn->rcv='%s'\n", pconn->rcv);
 	if (pconn->rcvlen > 0) {
 		if (pconn->rcv[pconn->rcvlen - 1] == '\t') {
 			if (pconn->rcvlen > 1) {
