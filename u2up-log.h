@@ -224,7 +224,7 @@ static const char *u2up_log_module_name = #name;\
 				syslog(LOG_NOTICE, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, ##args);\
 			}\
 		} else {\
-			if (U2UPLOG_MODULE_DEBUG && u2up_log_debug) {\
+			if (U2UP_LOG_MODULE_DEBUG && u2up_log_debug) {\
 				fprintf(stdout, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, ##args);\
 				fflush(stdout);\
 			} else if (U2UP_LOG_MODULE_TRACE && u2up_log_trace) {\
@@ -266,7 +266,7 @@ static const char *u2up_log_module_name = #name;\
 		if (u2up_log_use_syslog) {\
 			if (U2UP_LOG_MODULE_DEBUG && u2up_log_debug) {\
 				syslog(LOG_INFO, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, ##args);\
-			} else if (U2UPLOG_MODULE_TRACE && u2up_log_trace) {\
+			} else if (U2UP_LOG_MODULE_TRACE && u2up_log_trace) {\
 				syslog(LOG_INFO, U2UP_LOG_WITH_HEADER_TRACE_FORMAT format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, ##args);\
 			} else if (u2up_log_verbose) {\
 				syslog(LOG_INFO, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, ##args);\
@@ -288,7 +288,7 @@ static const char *u2up_log_module_name = #name;\
 			if (U2UP_LOG_MODULE_DEBUG && u2up_log_debug) {\
 				syslog(LOG_INFO, U2UP_LOG_NO_HEADER_DEBUG_FORMAT format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, ##args);\
 			} else if (U2UP_LOG_MODULE_TRACE && u2up_log_trace) {\
-				syslog(LOG_INFO, U2UPLOG_NO_HEADER_TRACE_FORMAT format, U2UP_LOG_NO_HEADER_TRACE_ARGS, ##args);\
+				syslog(LOG_INFO, U2UP_LOG_NO_HEADER_TRACE_FORMAT format, U2UP_LOG_NO_HEADER_TRACE_ARGS, ##args);\
 			} else if (u2up_log_verbose) {\
 				syslog(LOG_INFO, U2UP_LOG_NO_HEADER_NORMAL_FORMAT format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, ##args);\
 			}\
