@@ -38,8 +38,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#define U2UP_LOG_NAME DEMO_CLI
 #include <u2up-log/u2up-log.h>
-U2UP_LOG_MODULE_INIT(DEMO_CLI, 2);
+static U2UP_LOG_INIT(U2UP_LOG_NAME)
 
 #include <u2up-cli/u2up-clisrv.h>
 #include <u2up-cli/u2up-clicli.h>
@@ -47,13 +48,6 @@ U2UP_LOG_MODULE_INIT(DEMO_CLI, 2);
 /*
  * The MAIN part.
  */
-unsigned int log_mask;
-unsigned int u2up_log_normal = 1;
-unsigned int u2up_log_verbose = 0;
-unsigned int u2up_log_trace = 0;
-unsigned int u2up_log_debug = 0;
-unsigned int u2up_log_use_syslog = 0;
-unsigned int u2up_log_add_header = 1;
 
 static void usage_help(char *argv[])
 {
@@ -108,31 +102,31 @@ static int usage_check(int argc, char *argv[])
 
 		switch (c) {
 		case 'q':
-			u2up_log_normal = 0;
+			U2UP_LOG_SET_QUIET(0);
 			break;
 
 		case 'v':
-			u2up_log_verbose = 1;
+			U2UP_LOG_SET_VERBOSE(1);
 			break;
 
 #if (EVMLOG_MODULE_TRACE != 0)
 		case 't':
-			u2up_log_trace = 1;
+			U2UP_LOG_SET_TRACE(1);
 			break;
 #endif
 
 #if (EVMLOG_MODULE_DEBUG != 0)
 		case 'g':
-			u2up_log_debug = 1;
+			U2UP_LOG_SET_DEBUG(1);
 			break;
 #endif
 
 		case 'n':
-			u2up_log_add_header = 0;
+			U2UP_LOG_SET_HEADER(0);
 			break;
 
 		case 's':
-			u2up_log_use_syslog = 1;
+			U2UP_LOG_SET_SYSLOG(1);
 			break;
 
 		case 'h':
@@ -284,18 +278,6 @@ int main(int argc, char *argv[])
 	int sd[2];
 	int flags;
 	usage_check(argc, argv);
-
-	log_mask = LOG_MASK(LOG_EMERG) | LOG_MASK(LOG_ALERT) | LOG_MASK(LOG_CRIT) | LOG_MASK(LOG_ERR);
-
-	/* Setup LOG_MASK according to startup arguments! */
-	if (u2up_log_normal) {
-		log_mask |= LOG_MASK(LOG_WARNING);
-		log_mask |= LOG_MASK(LOG_NOTICE);
-	}
-	if ((u2up_log_verbose) || (u2up_log_trace))
-		log_mask |= LOG_MASK(LOG_INFO);
-	if (u2up_log_debug)
-		log_mask |= LOG_MASK(LOG_DEBUG);
 
 	if ((clisrv_pcmds = tokenizeCliCmds(clisrv_cmds)) == NULL) {
 		u2up_log_error("tokenizeCliCmds() failed!\n");
