@@ -52,6 +52,7 @@ typedef struct u2up_log {
 
 #define _MKU2UPLOG(name) u2upLog_##name
 #define MKU2UPLOG(name) _MKU2UPLOG(name)
+
 #define _MKU2UPSTR(name) #name
 #define MKU2UPSTR(name) _MKU2UPSTR(name)
 
@@ -64,7 +65,10 @@ u2up_log_struct MKU2UPLOG(modName) = { \
 	.debug = 0, \
 	.header = 1, \
 	.syslog = 0, \
-};
+}
+
+#define U2UP_LOG_DECLARE(modName) \
+extern u2up_log_struct MKU2UPLOG(modName)
 
 #define U2UP_LOG_SET_QUIET(val) MKU2UPLOG(U2UP_LOG_NAME).quiet = val
 #define U2UP_LOG_SET_NORMAL(val) MKU2UPLOG(U2UP_LOG_NAME).normal = val
@@ -73,6 +77,14 @@ u2up_log_struct MKU2UPLOG(modName) = { \
 #define U2UP_LOG_SET_DEBUG(val) MKU2UPLOG(U2UP_LOG_NAME).debug = val
 #define U2UP_LOG_SET_HEADER(val) MKU2UPLOG(U2UP_LOG_NAME).header = val
 #define U2UP_LOG_SET_SYSLOG(val) MKU2UPLOG(U2UP_LOG_NAME).syslog = val
+
+#define U2UP_LOG_SET_QUIET2(name, val) MKU2UPLOG(name).quiet = val
+#define U2UP_LOG_SET_NORMAL2(name, val) MKU2UPLOG(name).normal = val
+#define U2UP_LOG_SET_VERBOSE2(name, val) MKU2UPLOG(name).verbose = val
+#define U2UP_LOG_SET_TRACE2(name, val) MKU2UPLOG(name).trace = val
+#define U2UP_LOG_SET_DEBUG2(name, val) MKU2UPLOG(name).debug = val
+#define U2UP_LOG_SET_HEADER2(name, val) MKU2UPLOG(name).header = val
+#define U2UP_LOG_SET_SYSLOG2(name, val) MKU2UPLOG(name).syslog = val
 
 #define U2UP_LOG_5DIGIT_SECS(timespec_x) (timespec_x.tv_sec % 100000)
 #define U2UP_LOG_6DIGIT_USECS(timespec_x) (timespec_x.tv_nsec / 1000)
