@@ -22,8 +22,8 @@
  * This "u2up-log" module provides various output definitions in a single header file.
  */
 
-#ifndef U2UP_LOG_FILE_u2up_log_h
-#define U2UP_LOG_FILE_u2up_log_h
+#ifndef U2UP_LOG_FILE_PRE_u2up_log_h
+#define U2UP_LOG_FILE_PRE_u2up_log_h
 
 /*
  * Here starts the PUBLIC stuff.
@@ -68,6 +68,8 @@ typedef struct u2up_log {
 #define _MKU2UPLOG_SETSYSLOG(name) u2upLogSetSyslog_##name
 #define MKU2UPLOG_SETSYSLOG(name) _MKU2UPLOG_SETSYSLOG(name)
 
+#endif /*U2UP_LOG_FILE_PRE_u2up_log_h*/
+
 static u2up_log_struct MKU2UPLOG(U2UP_LOG_NAME) = {
 	.quiet = 0,
 	.normal = 1,
@@ -99,6 +101,9 @@ void MKU2UPLOG_SETHEADER(U2UP_LOG_NAME)(unsigned char val) {
 void MKU2UPLOG_SETSYSLOG(U2UP_LOG_NAME)(unsigned char val) {
 	MKU2UPLOG(U2UP_LOG_NAME).syslog = val;
 }
+
+#ifndef U2UP_LOG_FILE_POST_u2up_log_h
+#define U2UP_LOG_FILE_POST_u2up_log_h
 
 #define U2UP_LOG_DECLARE(modName) \
 extern void MKU2UPLOG_SETQUIET(modName)(unsigned char val); \
@@ -424,5 +429,5 @@ extern void MKU2UPLOG_SETSYSLOG(modName)(unsigned char val)
 	return -errsv;\
 }
 
-#endif /*U2UP_LOG_FILE_u2up_log_h*/
+#endif /*U2UP_LOG_FILE_POST_u2up_log_h*/
 
