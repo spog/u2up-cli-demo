@@ -30,6 +30,9 @@
 
 #include <u2up-cli/u2up-cli.h>
 
+#define U2UP_LOG_NAME U2CLISRV
+#include <u2up-log/u2up-log.h>
+
 typedef struct clisrv_pconn {
 	char *rcv;
 	int rcvlen; /*without termination null character - alias strlen()*/
@@ -1513,5 +1516,6 @@ static int parseReceivedData(clisrv_pconn_struct *pconn, char *data, int datasz 
 	return parseCmdLine(pconn);
 }
 
+#undef U2UP_LOG_NAME
 #endif /*U2UP_CLI_FILE_u2up_clisrv_h*/
 

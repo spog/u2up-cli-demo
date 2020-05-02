@@ -31,6 +31,9 @@
 
 #include <u2up-cli/u2up-cli.h>
 
+#define U2UP_LOG_NAME U2CLICLI
+#include <u2up-log/u2up-log.h>
+
 typedef struct netsim_cli_log netsimCliLogStruct;
 typedef struct netsim_cli_log_entry netsimCliLogEntryStruct;
 
@@ -782,5 +785,6 @@ int processCliCmds(int sockfd, int (*cmd_send_receive)(int sock, char *snd_str, 
 	return 0;
 }
 
+#undef U2UP_LOG_NAME
 #endif /*U2UP_CLI_FILE_u2up_clicli_h*/
 
