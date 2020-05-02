@@ -38,13 +38,13 @@
 #include <sys/types.h>
 
 typedef struct u2up_log {
-	unsigned char quiet;
-	unsigned char normal;
-	unsigned char verbose;
-	unsigned char trace;
-	unsigned char debug;
-	unsigned char header;
-	unsigned char syslog;
+	int quiet;
+	int normal;
+	int verbose;
+	int trace;
+	int debug;
+	int header;
+	int syslog;
 } u2up_log_struct;
 
 #define _MKU2UPSTR(name) #name
@@ -53,20 +53,40 @@ typedef struct u2up_log {
 #define _MKU2UPLOG(name) u2upLog_##name
 #define MKU2UPLOG(name) _MKU2UPLOG(name)
 
-#define _MKU2UPLOG_SETQUIET(name) u2upLogSetQuiet_##name
-#define MKU2UPLOG_SETQUIET(name) _MKU2UPLOG_SETQUIET(name)
-#define _MKU2UPLOG_SETNORMAL(name) u2upLogSetNormal_##name
-#define MKU2UPLOG_SETNORMAL(name) _MKU2UPLOG_SETNORMAL(name)
-#define _MKU2UPLOG_SETVERBOSE(name) u2upLogSetVerbose_##name
-#define MKU2UPLOG_SETVERBOSE(name) _MKU2UPLOG_SETVERBOSE(name)
-#define _MKU2UPLOG_SETTRACE(name) u2upLogSetTrace_##name
-#define MKU2UPLOG_SETTRACE(name) _MKU2UPLOG_SETTRACE(name)
-#define _MKU2UPLOG_SETDEBUG(name) u2upLogSetDebug_##name
-#define MKU2UPLOG_SETDEBUG(name) _MKU2UPLOG_SETDEBUG(name)
-#define _MKU2UPLOG_SETHEADER(name) u2upLogSetHeader_##name
-#define MKU2UPLOG_SETHEADER(name) _MKU2UPLOG_SETHEADER(name)
-#define _MKU2UPLOG_SETSYSLOG(name) u2upLogSetSyslog_##name
-#define MKU2UPLOG_SETSYSLOG(name) _MKU2UPLOG_SETSYSLOG(name)
+#define _MKU2UPLOG_SET_QUIET(name) u2upLogSetQuiet_##name
+#define MKU2UPLOG_SET_QUIET(name) _MKU2UPLOG_SET_QUIET(name)
+#define _MKU2UPLOG_GET_QUIET(name) u2upLogGetQuiet_##name
+#define MKU2UPLOG_GET_QUIET(name) _MKU2UPLOG_GET_QUIET(name)
+
+#define _MKU2UPLOG_SET_NORMAL(name) u2upLogSetNormal_##name
+#define MKU2UPLOG_SET_NORMAL(name) _MKU2UPLOG_SET_NORMAL(name)
+#define _MKU2UPLOG_GET_NORMAL(name) u2upLogGetNormal_##name
+#define MKU2UPLOG_GET_NORMAL(name) _MKU2UPLOG_GET_NORMAL(name)
+
+#define _MKU2UPLOG_SET_VERBOSE(name) u2upLogSetVerbose_##name
+#define MKU2UPLOG_SET_VERBOSE(name) _MKU2UPLOG_SET_VERBOSE(name)
+#define _MKU2UPLOG_GET_VERBOSE(name) u2upLogGetVerbose_##name
+#define MKU2UPLOG_GET_VERBOSE(name) _MKU2UPLOG_GET_VERBOSE(name)
+
+#define _MKU2UPLOG_SET_TRACE(name) u2upLogSetTrace_##name
+#define MKU2UPLOG_SET_TRACE(name) _MKU2UPLOG_SET_TRACE(name)
+#define _MKU2UPLOG_GET_TRACE(name) u2upLogGetTrace_##name
+#define MKU2UPLOG_GET_TRACE(name) _MKU2UPLOG_GET_TRACE(name)
+
+#define _MKU2UPLOG_SET_DEBUG(name) u2upLogSetDebug_##name
+#define MKU2UPLOG_SET_DEBUG(name) _MKU2UPLOG_SET_DEBUG(name)
+#define _MKU2UPLOG_GET_DEBUG(name) u2upLogGetDebug_##name
+#define MKU2UPLOG_GET_DEBUG(name) _MKU2UPLOG_GET_DEBUG(name)
+
+#define _MKU2UPLOG_SET_HEADER(name) u2upLogSetHeader_##name
+#define MKU2UPLOG_SET_HEADER(name) _MKU2UPLOG_SET_HEADER(name)
+#define _MKU2UPLOG_GET_HEADER(name) u2upLogGetHeader_##name
+#define MKU2UPLOG_GET_HEADER(name) _MKU2UPLOG_GET_HEADER(name)
+
+#define _MKU2UPLOG_SET_SYSLOG(name) u2upLogSetSyslog_##name
+#define MKU2UPLOG_SET_SYSLOG(name) _MKU2UPLOG_SET_SYSLOG(name)
+#define _MKU2UPLOG_GET_SYSLOG(name) u2upLogGetSyslog_##name
+#define MKU2UPLOG_GET_SYSLOG(name) _MKU2UPLOG_GET_SYSLOG(name)
 
 #endif /*U2UP_LOG_FILE_PRE_u2up_log_h*/
 
@@ -80,55 +100,103 @@ static u2up_log_struct MKU2UPLOG(U2UP_LOG_NAME) = {
 	.syslog = 0
 };
 
-void MKU2UPLOG_SETQUIET(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_QUIET(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).quiet = val;
 }
-void MKU2UPLOG_SETNORMAL(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_NORMAL(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).normal = val;
 }
-void MKU2UPLOG_SETVERBOSE(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_VERBOSE(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).verbose = val;
 }
-void MKU2UPLOG_SETTRACE(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_TRACE(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).trace = val;
 }
-void MKU2UPLOG_SETDEBUG(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_DEBUG(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).debug = val;
 }
-void MKU2UPLOG_SETHEADER(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_HEADER(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).header = val;
 }
-void MKU2UPLOG_SETSYSLOG(U2UP_LOG_NAME)(unsigned char val) {
+void MKU2UPLOG_SET_SYSLOG(U2UP_LOG_NAME)(int val) {
 	MKU2UPLOG(U2UP_LOG_NAME).syslog = val;
+}
+
+int MKU2UPLOG_GET_QUIET(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).quiet;
+}
+int MKU2UPLOG_GET_NORMAL(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).normal;
+}
+int MKU2UPLOG_GET_VERBOSE(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).verbose;
+}
+int MKU2UPLOG_GET_TRACE(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).trace;
+}
+int MKU2UPLOG_GET_DEBUG(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).debug;
+}
+int MKU2UPLOG_GET_HEADER(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).header;
+}
+int MKU2UPLOG_GET_SYSLOG(U2UP_LOG_NAME)(void) {
+	return MKU2UPLOG(U2UP_LOG_NAME).syslog;
 }
 
 #ifndef U2UP_LOG_FILE_POST_u2up_log_h
 #define U2UP_LOG_FILE_POST_u2up_log_h
 
 #define U2UP_LOG_DECLARE(modName) \
-extern void MKU2UPLOG_SETQUIET(modName)(unsigned char val); \
-extern void MKU2UPLOG_SETNORMAL(modName)(unsigned char val); \
-extern void MKU2UPLOG_SETVERBOSE(modName)(unsigned char val); \
-extern void MKU2UPLOG_SETTRACE(modName)(unsigned char val); \
-extern void MKU2UPLOG_SETDEBUG(modName)(unsigned char val); \
-extern void MKU2UPLOG_SETHEADER(modName)(unsigned char val); \
-extern void MKU2UPLOG_SETSYSLOG(modName)(unsigned char val)
+extern void MKU2UPLOG_SET_QUIET(modName)(int val); \
+extern void MKU2UPLOG_SET_NORMAL(modName)(int val); \
+extern void MKU2UPLOG_SET_VERBOSE(modName)(int val); \
+extern void MKU2UPLOG_SET_TRACE(modName)(int val); \
+extern void MKU2UPLOG_SET_DEBUG(modName)(int val); \
+extern void MKU2UPLOG_SET_HEADER(modName)(int val); \
+extern void MKU2UPLOG_SET_SYSLOG(modName)(int val); \
+extern int MKU2UPLOG_GET_QUIET(modName)(void); \
+extern int MKU2UPLOG_GET_NORMAL(modName)(void); \
+extern int MKU2UPLOG_GET_VERBOSE(modName)(void); \
+extern int MKU2UPLOG_GET_TRACE(modName)(void); \
+extern int MKU2UPLOG_GET_DEBUG(modName)(void); \
+extern int MKU2UPLOG_GET_HEADER(modName)(void); \
+extern int MKU2UPLOG_GET_SYSLOG(modName)(void)
 
-#define U2UP_LOG_SET_QUIET(val) MKU2UPLOG_SETQUIET(U2UP_LOG_NAME)(val)
-#define U2UP_LOG_SET_NORMAL(val) MKU2UPLOG_SETNORMAL(U2UP_LOG_NAME)(val)
-#define U2UP_LOG_SET_VERBOSE(val) MKU2UPLOG_SETVERBOSE(U2UP_LOG_NAME)(val)
-#define U2UP_LOG_SET_TRACE(val) MKU2UPLOG_SETTRACE(U2UP_LOG_NAME)(val)
-#define U2UP_LOG_SET_DEBUG(val) MKU2UPLOG_SETDEBUG(U2UP_LOG_NAME)(val)
-#define U2UP_LOG_SET_HEADER(val) MKU2UPLOG_SETHEADER(U2UP_LOG_NAME)(val)
-#define U2UP_LOG_SET_SYSLOG(val) MKU2UPLOG_SETSYSLOG(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_QUIET(val) MKU2UPLOG_SET_QUIET(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_QUIET2(name, val) MKU2UPLOG_SET_QUIET(name)(val)
+#define U2UP_LOG_GET_QUIET() MKU2UPLOG_GET_QUIET(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_QUIET2(name) MKU2UPLOG_GET_QUIET(name)()
 
-#define U2UP_LOG_SET_QUIET2(name, val) MKU2UPLOG_SETQUIET(name)(val)
-#define U2UP_LOG_SET_NORMAL2(name, val) MKU2UPLOG_SETNORMAL(name)(val)
-#define U2UP_LOG_SET_VERBOSE2(name, val) MKU2UPLOG_SETVERBOSE(name)(val)
-#define U2UP_LOG_SET_TRACE2(name, val) MKU2UPLOG_SETTRACE(name)(val)
-#define U2UP_LOG_SET_DEBUG2(name, val) MKU2UPLOG_SETDEBUG(name)(val)
-#define U2UP_LOG_SET_HEADER2(name, val) MKU2UPLOG_SETHEADER(name)(val)
-#define U2UP_LOG_SET_SYSLOG2(name, val) MKU2UPLOG_SETSYSLOG(name)(val)
+#define U2UP_LOG_SET_NORMAL(val) MKU2UPLOG_SET_NORMAL(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_NORMAL2(name, val) MKU2UPLOG_SET_NORMAL(name)(val)
+#define U2UP_LOG_GET_NORMAL() MKU2UPLOG_GET_NORMAL(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_NORMAL2(name) MKU2UPLOG_GET_NORMAL(name)()
+
+#define U2UP_LOG_SET_VERBOSE(val) MKU2UPLOG_SET_VERBOSE(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_VERBOSE2(name, val) MKU2UPLOG_SET_VERBOSE(name)(val)
+#define U2UP_LOG_GET_VERBOSE() MKU2UPLOG_GET_VERBOSE(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_VERBOSE2(name) MKU2UPLOG_GET_VERBOSE(name)()
+
+#define U2UP_LOG_SET_TRACE(val) MKU2UPLOG_SET_TRACE(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_TRACE2(name, val) MKU2UPLOG_SET_TRACE(name)(val)
+#define U2UP_LOG_GET_TRACE() MKU2UPLOG_GET_TRACE(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_TRACE2(name) MKU2UPLOG_GET_TRACE(name)()
+
+#define U2UP_LOG_SET_DEBUG(val) MKU2UPLOG_SET_DEBUG(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_DEBUG2(name, val) MKU2UPLOG_SET_DEBUG(name)(val)
+#define U2UP_LOG_GET_DEBUG() MKU2UPLOG_GET_DEBUG(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_DEBUG2(name) MKU2UPLOG_GET_DEBUG(name)()
+
+#define U2UP_LOG_SET_HEADER(val) MKU2UPLOG_SET_HEADER(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_HEADER2(name, val) MKU2UPLOG_SET_HEADER(name)(val)
+#define U2UP_LOG_GET_HEADER() MKU2UPLOG_GET_HEADER(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_HEADER2(name) MKU2UPLOG_GET_HEADER(name)()
+
+#define U2UP_LOG_SET_SYSLOG(val) MKU2UPLOG_SET_SYSLOG(U2UP_LOG_NAME)(val)
+#define U2UP_LOG_SET_SYSLOG2(name, val) MKU2UPLOG_SET_SYSLOG(name)(val)
+#define U2UP_LOG_GET_SYSLOG() MKU2UPLOG_GET_SYSLOG(U2UP_LOG_NAME)()
+#define U2UP_LOG_GET_SYSLOG2(name) MKU2UPLOG_GET_SYSLOG(name)()
 
 #define U2UP_LOG_5DIGIT_SECS(timespec_x) (timespec_x.tv_sec % 100000)
 #define U2UP_LOG_6DIGIT_USECS(timespec_x) (timespec_x.tv_nsec / 1000)
