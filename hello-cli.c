@@ -38,12 +38,14 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define U2UP_LOG_NAME DEMO_CLI
-#include <u2up-log/u2up-log.h>
-static U2UP_LOG_INIT(U2UP_LOG_NAME)
-
 #include <u2up-cli/u2up-clisrv.h>
 #include <u2up-cli/u2up-clicli.h>
+
+#define U2UP_LOG_NAME DEMO_CLI
+#include <u2up-log/u2up-log.h>
+/* Declare all other used "u2up-log" modules: */
+U2UP_LOG_DECLARE(U2CLICLI);
+U2UP_LOG_DECLARE(U2CLISRV);
 
 /*
  * The MAIN part.
@@ -56,10 +58,10 @@ static void usage_help(char *argv[])
 	printf("options:\n");
 	printf("\t-q, --quiet              Disable all output.\n");
 	printf("\t-v, --verbose            Enable verbose output.\n");
-#if (EVMLOG_MODULE_TRACE != 0)
+#if (U2UP_LOG_MODULE_TRACE != 0)
 	printf("\t-t, --trace              Enable trace output.\n");
 #endif
-#if (EVMLOG_MODULE_DEBUG != 0)
+#if (U2UP_LOG_MODULE_DEBUG != 0)
 	printf("\t-g, --debug              Enable debug output.\n");
 #endif
 	printf("\t-s, --syslog             Enable syslog output (instead of stdout, stderr).\n");
@@ -76,10 +78,10 @@ static int usage_check(int argc, char *argv[])
 		static struct option long_options[] = {
 			{"quiet", 0, 0, 'q'},
 			{"verbose", 0, 0, 'v'},
-#if (EVMLOG_MODULE_TRACE != 0)
+#if (U2UP_LOG_MODULE_TRACE != 0)
 			{"trace", 0, 0, 't'},
 #endif
-#if (EVMLOG_MODULE_DEBUG != 0)
+#if (U2UP_LOG_MODULE_DEBUG != 0)
 			{"debug", 0, 0, 'g'},
 #endif
 			{"no-header", 0, 0, 'n'},
@@ -88,11 +90,11 @@ static int usage_check(int argc, char *argv[])
 			{0, 0, 0, 0}
 		};
 
-#if (EVMLOG_MODULE_TRACE != 0) && (EVMLOG_MODULE_DEBUG != 0)
+#if (U2UP_LOG_MODULE_TRACE != 0) && (U2UP_LOG_MODULE_DEBUG != 0)
 		c = getopt_long(argc, argv, "qvltgnsh", long_options, &option_index);
-#elif (EVMLOG_MODULE_TRACE == 0) && (EVMLOG_MODULE_DEBUG != 0)
+#elif (U2UP_LOG_MODULE_TRACE == 0) && (U2UP_LOG_MODULE_DEBUG != 0)
 		c = getopt_long(argc, argv, "qvlgnsh", long_options, &option_index);
-#elif (EVMLOG_MODULE_TRACE != 0) && (EVMLOG_MODULE_DEBUG == 0)
+#elif (U2UP_LOG_MODULE_TRACE != 0) && (U2UP_LOG_MODULE_DEBUG == 0)
 		c = getopt_long(argc, argv, "qvltnsh", long_options, &option_index);
 #else
 		c = getopt_long(argc, argv, "qvlnsh", long_options, &option_index);
@@ -102,31 +104,43 @@ static int usage_check(int argc, char *argv[])
 
 		switch (c) {
 		case 'q':
-			U2UP_LOG_SET_QUIET(0);
+			U2UP_LOG_SET_NORMAL(0);
+			U2UP_LOG_SET_NORMAL2(U2CLICLI, 0);
+			U2UP_LOG_SET_NORMAL2(U2CLISRV, 0);
 			break;
 
 		case 'v':
 			U2UP_LOG_SET_VERBOSE(1);
+			U2UP_LOG_SET_VERBOSE2(U2CLICLI, 1);
+			U2UP_LOG_SET_VERBOSE2(U2CLISRV, 1);
 			break;
 
-#if (EVMLOG_MODULE_TRACE != 0)
+#if (U2UP_LOG_MODULE_TRACE != 0)
 		case 't':
 			U2UP_LOG_SET_TRACE(1);
+			U2UP_LOG_SET_TRACE2(U2CLICLI, 1);
+			U2UP_LOG_SET_TRACE2(U2CLISRV, 1);
 			break;
 #endif
 
-#if (EVMLOG_MODULE_DEBUG != 0)
+#if (U2UP_LOG_MODULE_DEBUG != 0)
 		case 'g':
 			U2UP_LOG_SET_DEBUG(1);
+			U2UP_LOG_SET_DEBUG2(U2CLICLI, 1);
+			U2UP_LOG_SET_DEBUG2(U2CLISRV, 1);
 			break;
 #endif
 
 		case 'n':
 			U2UP_LOG_SET_HEADER(0);
+			U2UP_LOG_SET_HEADER2(U2CLICLI, 0);
+			U2UP_LOG_SET_HEADER2(U2CLISRV, 0);
 			break;
 
 		case 's':
 			U2UP_LOG_SET_SYSLOG(1);
+			U2UP_LOG_SET_SYSLOG2(U2CLICLI, 1);
+			U2UP_LOG_SET_SYSLOG2(U2CLISRV, 1);
 			break;
 
 		case 'h':
