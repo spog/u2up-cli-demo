@@ -57,6 +57,7 @@ static void usage_help(char *argv[])
 	printf("\t%s [options]\n", argv[0]);
 	printf("options:\n");
 	printf("\t-q, --quiet              Disable all output.\n");
+	printf("\t-p, --no-module NAME     Disable all output from u2up_log module NAME prefix.\n");
 	printf("\t-v, --verbose            Enable verbose output.\n");
 #if (U2UP_LOG_MODULE_TRACE != 0)
 	printf("\t-t, --trace              Enable trace output.\n");
@@ -77,6 +78,7 @@ static int usage_check(int argc, char *argv[])
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"quiet", 0, 0, 'q'},
+			{"no-module", 1, 0, 'p'},
 			{"verbose", 0, 0, 'v'},
 #if (U2UP_LOG_MODULE_TRACE != 0)
 			{"trace", 0, 0, 't'},
@@ -91,13 +93,13 @@ static int usage_check(int argc, char *argv[])
 		};
 
 #if (U2UP_LOG_MODULE_TRACE != 0) && (U2UP_LOG_MODULE_DEBUG != 0)
-		c = getopt_long(argc, argv, "qvltgnsh", long_options, &option_index);
+		c = getopt_long(argc, argv, "qp:vltgnsh", long_options, &option_index);
 #elif (U2UP_LOG_MODULE_TRACE == 0) && (U2UP_LOG_MODULE_DEBUG != 0)
-		c = getopt_long(argc, argv, "qvlgnsh", long_options, &option_index);
+		c = getopt_long(argc, argv, "qp:vlgnsh", long_options, &option_index);
 #elif (U2UP_LOG_MODULE_TRACE != 0) && (U2UP_LOG_MODULE_DEBUG == 0)
-		c = getopt_long(argc, argv, "qvltnsh", long_options, &option_index);
+		c = getopt_long(argc, argv, "qp:vltnsh", long_options, &option_index);
 #else
-		c = getopt_long(argc, argv, "qvlnsh", long_options, &option_index);
+		c = getopt_long(argc, argv, "qp:vlnsh", long_options, &option_index);
 #endif
 		if (c == -1)
 			break;
@@ -113,6 +115,24 @@ static int usage_check(int argc, char *argv[])
 			U2UP_LOG_SET_VERBOSE(1);
 			U2UP_LOG_SET_VERBOSE2(U2CLICLI, 1);
 			U2UP_LOG_SET_VERBOSE2(U2CLISRV, 1);
+			break;
+
+		case 'p': {
+				size_t optlen = strlen(optarg);
+//tst:				printf("no-module: optlen=%zd, optarg=%s\n", optlen, optarg);
+				if (strlen(U2UP_LOG_GET_NAME()) >= optlen)
+					if (strncmp(U2UP_LOG_GET_NAME(), optarg, optlen) == 0) {
+						U2UP_LOG_SET_QUIET(1);
+					}
+				if (strlen(U2UP_LOG_GET_NAME2(U2CLICLI)) >= optlen)
+					if (strncmp(U2UP_LOG_GET_NAME2(U2CLICLI), optarg, optlen) == 0) {
+						U2UP_LOG_SET_QUIET2(U2CLICLI, 1);
+					}
+				if (strlen(U2UP_LOG_GET_NAME2(U2CLISRV)) >= optlen)
+					if (strncmp(U2UP_LOG_GET_NAME2(U2CLISRV), optarg, optlen) == 0) {
+						U2UP_LOG_SET_QUIET2(U2CLISRV, 1);
+					}
+			}
 			break;
 
 #if (U2UP_LOG_MODULE_TRACE != 0)
