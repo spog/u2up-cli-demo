@@ -229,104 +229,6 @@ extern char * MKU2UPLOG_GET_NAME(modName)(void)
 #define U2UP_LOG_NO_HEADER_NORMAL_FORMAT "%s"
 #define U2UP_LOG_NO_HEADER_NORMAL_ARGS ""
 
-#define u2up_log_system_error(format, args...) {\
-	char buf[1024];\
-	strerror_r(errno, buf, 1024);\
-	if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).header) {\
-		struct timespec ts;\
-		clock_gettime(CLOCK_MONOTONIC, &ts);\
-		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, buf, ##args);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, buf, ##args);\
-			} else {\
-				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, buf, ##args);\
-			}\
-		} else {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				fprintf(stderr, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, buf, ##args);\
-				fflush(stderr);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				fprintf(stderr, U2UP_LOG_WITH_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, buf, ##args);\
-				fflush(stderr);\
-			} else {\
-				fprintf(stderr, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, buf, ##args);\
-				fflush(stderr);\
-			}\
-		}\
-	} else {\
-		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, buf, ##args);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_TRACE_ARGS, buf, ##args);\
-			} else {\
-				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, buf, ##args);\
-			}\
-		} else {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				fprintf(stderr, U2UP_LOG_NO_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, buf, ##args);\
-				fflush(stderr);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				fprintf(stderr, U2UP_LOG_NO_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_TRACE_ARGS, buf, ##args);\
-				fflush(stderr);\
-			} else {\
-				fprintf(stderr, U2UP_LOG_NO_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, buf, ##args);\
-				fflush(stderr);\
-			}\
-		}\
-	}\
-}
-
-#define u2up_log_error(format, args...) {\
-	if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).header) {\
-		struct timespec ts;\
-		clock_gettime(CLOCK_MONOTONIC, &ts);\
-		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, ##args);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_TRACE_FORMAT format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, ##args);\
-			} else {\
-				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, ##args);\
-			}\
-		} else {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				fprintf(stderr, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, ##args);\
-				fflush(stderr);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				fprintf(stderr, U2UP_LOG_WITH_HEADER_TRACE_FORMAT format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, ##args);\
-				fflush(stderr);\
-			} else {\
-				fprintf(stderr, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, ##args);\
-				fflush(stderr);\
-			}\
-		}\
-	} else {\
-		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_DEBUG_FORMAT format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, ##args);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_TRACE_FORMAT format, U2UP_LOG_NO_HEADER_TRACE_ARGS, ##args);\
-			} else {\
-				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_NORMAL_FORMAT format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, ##args);\
-			}\
-		} else {\
-			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
-				fprintf(stderr, U2UP_LOG_NO_HEADER_DEBUG_FORMAT format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, ##args);\
-				fflush(stderr);\
-			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
-				fprintf(stderr, U2UP_LOG_NO_HEADER_TRACE_FORMAT format, U2UP_LOG_NO_HEADER_TRACE_ARGS, ##args);\
-				fflush(stderr);\
-			} else {\
-				fprintf(stderr, U2UP_LOG_NO_HEADER_NORMAL_FORMAT format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, ##args);\
-				fflush(stderr);\
-			}\
-		}\
-	}\
-}
-
 #define u2up_log_warning(format, args...) \
 if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).quiet == 0) {\
 	if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).header) {\
@@ -498,6 +400,104 @@ if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).quiet == 0) {\
 			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
 				fprintf(stdout, U2UP_LOG_NO_HEADER_DEBUG_FORMAT format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, ##args);\
 				fflush(stdout);\
+			}\
+		}\
+	}\
+}
+
+#define u2up_log_system_error(format, args...) {\
+	char buf[1024];\
+	strerror_r(errno, buf, 1024);\
+	if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).header) {\
+		struct timespec ts;\
+		clock_gettime(CLOCK_MONOTONIC, &ts);\
+		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, buf, ##args);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, buf, ##args);\
+			} else {\
+				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, buf, ##args);\
+			}\
+		} else {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				fprintf(stderr, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, buf, ##args);\
+				fflush(stderr);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				fprintf(stderr, U2UP_LOG_WITH_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, buf, ##args);\
+				fflush(stderr);\
+			} else {\
+				fprintf(stderr, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, buf, ##args);\
+				fflush(stderr);\
+			}\
+		}\
+	} else {\
+		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, buf, ##args);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_TRACE_ARGS, buf, ##args);\
+			} else {\
+				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, buf, ##args);\
+			}\
+		} else {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				fprintf(stderr, U2UP_LOG_NO_HEADER_DEBUG_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, buf, ##args);\
+				fflush(stderr);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				fprintf(stderr, U2UP_LOG_NO_HEADER_TRACE_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_TRACE_ARGS, buf, ##args);\
+				fflush(stderr);\
+			} else {\
+				fprintf(stderr, U2UP_LOG_NO_HEADER_NORMAL_FORMAT "%s >> " format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, buf, ##args);\
+				fflush(stderr);\
+			}\
+		}\
+	}\
+}
+
+#define u2up_log_error(format, args...) {\
+	if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).header) {\
+		struct timespec ts;\
+		clock_gettime(CLOCK_MONOTONIC, &ts);\
+		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, ##args);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_TRACE_FORMAT format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, ##args);\
+			} else {\
+				syslog(LOG_ERR, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, ##args);\
+			}\
+		} else {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				fprintf(stderr, U2UP_LOG_WITH_HEADER_DEBUG_FORMAT format, U2UP_LOG_WITH_HEADER_DEBUG_ARGS, ##args);\
+				fflush(stderr);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				fprintf(stderr, U2UP_LOG_WITH_HEADER_TRACE_FORMAT format, U2UP_LOG_WITH_HEADER_TRACE_ARGS, ##args);\
+				fflush(stderr);\
+			} else {\
+				fprintf(stderr, U2UP_LOG_WITH_HEADER_NORMAL_FORMAT format, U2UP_LOG_WITH_HEADER_NORMAL_ARGS, ##args);\
+				fflush(stderr);\
+			}\
+		}\
+	} else {\
+		if (MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).syslog) {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_DEBUG_FORMAT format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, ##args);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_TRACE_FORMAT format, U2UP_LOG_NO_HEADER_TRACE_ARGS, ##args);\
+			} else {\
+				syslog(LOG_ERR, U2UP_LOG_NO_HEADER_NORMAL_FORMAT format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, ##args);\
+			}\
+		} else {\
+			if (U2UP_LOG_MODULE_DEBUG && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).debug) {\
+				fprintf(stderr, U2UP_LOG_NO_HEADER_DEBUG_FORMAT format, U2UP_LOG_NO_HEADER_DEBUG_ARGS, ##args);\
+				fflush(stderr);\
+			} else if (U2UP_LOG_MODULE_TRACE && MKU2UPLOG_VAR_STRUCT(U2UP_LOG_NAME).trace) {\
+				fprintf(stderr, U2UP_LOG_NO_HEADER_TRACE_FORMAT format, U2UP_LOG_NO_HEADER_TRACE_ARGS, ##args);\
+				fflush(stderr);\
+			} else {\
+				fprintf(stderr, U2UP_LOG_NO_HEADER_NORMAL_FORMAT format, U2UP_LOG_NO_HEADER_NORMAL_ARGS, ##args);\
+				fflush(stderr);\
 			}\
 		}\
 	}\
