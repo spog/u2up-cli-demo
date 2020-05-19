@@ -193,57 +193,271 @@ static int *srvsd;
 static clisrv_pconn_struct *pconn;
 
 static char *clisrv_cmds[] = {
-	"test1 {a=%8x|b=%u} {c|d}",
-	"test2 {a} {b} {c}",
-	"test3 {a=%d | b|c}|{d | e}",
+	"action1 [str=%s]",
+	"action2 obj1 {aa=%8x|ab=%u}",
+	"action3 obj1 {aa=%8x|ab=%u|all}",
+	"action4 obj1 obj2 {aa=%8x|ab=%u}{cc}{cd}{e}",
+	"action2 obj2 {cc}{cd}{e}",
+	"obj1 action2 {aa=%8x|ab=%u}",
+	"obj1 action3 {aa=%8x|ab=%u|all}",
+	"obj2 action2 {cc}{cd}{e}",
+	"quit",
 	NULL
 };
 
-static int test1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int action1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int action2_obj1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int action3_obj1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int action4_obj1_obj2_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int action2_obj2_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int obj1_action2_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int obj1_action3_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int obj2_action2_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+static int quit_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+#if 0 /*orig*/
 static int test2_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
 static int test3_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
+#endif
 
 static int (*cmd_handle[])(clisrv_token_struct *curr_tokens, char *buff, int size) = {
-	test1_handle,
+	action1_handle,
+	action2_obj1_handle,
+	action3_obj1_handle,
+	action4_obj1_obj2_handle,
+	action2_obj2_handle,
+	obj1_action2_handle,
+	obj1_action3_handle,
+	obj2_action2_handle,
+	quit_handle,
+#if 0 /*orig*/
 	test2_handle,
 	test3_handle,
+#endif
 };
 
-static int test1_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+static int action1_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
 {
-	clisrv_token_struct *a_token;
-	clisrv_token_struct *b_token;
-	clisrv_token_struct *c_token;
-	clisrv_token_struct *d_token;
-	uint32_t a;
-	unsigned int b;
+	clisrv_token_struct *str_token;
 
-	printf("test1 command handle called!'\n");
-	if ((a_token = getCurrentToken(curr_tokens, "a")) != NULL) {
-		if ((a_token->eqval != NULL) && (strlen(a_token->eqval) > 0)) {
-			sscanf(a_token->eqval, a_token->eqspec, &a);
-		}
-		printf("test1 command parameter (a=%.8x)!'\n", a);
-	} else
-	if ((b_token = getCurrentToken(curr_tokens, "b")) != NULL) {
-		if ((b_token->eqval != NULL) && (strlen(b_token->eqval) > 0)) {
-			sscanf(b_token->eqval, b_token->eqspec, &b);
-		}
-		printf("test1 command parameter (b=%u)!'\n", b);
-	} else
-		return -3;
+	printf("action1: command handle called!'\n");
 
-	if ((c_token = getCurrentToken(curr_tokens, "c")) != NULL) {
-		printf("test1 command parameter (c)!'\n");
+	if ((str_token = getCurrentToken(curr_tokens, "str")) != NULL) {
+		if ((str_token->eqval != NULL) && (strlen(str_token->eqval) > 0)) {
+			printf("action1 command handle: str=%s\n", str_token->eqval);
+		}
+	}
+
+	return 0;
+}
+
+static int action2_obj1_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *aa_token;
+	clisrv_token_struct *ab_token;
+	uint32_t aa;
+	unsigned int ab;
+
+	printf("action2 obj1: command handle called!'\n");
+	if ((aa_token = getCurrentToken(curr_tokens, "aa")) != NULL) {
+		if ((aa_token->eqval != NULL) && (strlen(aa_token->eqval) > 0)) {
+			sscanf(aa_token->eqval, aa_token->eqspec, &aa);
+		}
+		printf("action2 obj1: command parameter (aa=%.8x)!'\n", aa);
 	} else
-	if ((d_token = getCurrentToken(curr_tokens, "d")) != NULL) {
-		printf("test1 command parameter (d)!'\n");
+	if ((ab_token = getCurrentToken(curr_tokens, "ab")) != NULL) {
+		if ((ab_token->eqval != NULL) && (strlen(ab_token->eqval) > 0)) {
+			sscanf(ab_token->eqval, ab_token->eqspec, &ab);
+		}
+		printf("action2 obj1: command parameter (ab=%u)!'\n", ab);
 	} else
 		return -3;
 
 	return 0;
 }
 
+static int action3_obj1_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *aa_token;
+	clisrv_token_struct *ab_token;
+	clisrv_token_struct *all_token;
+	uint32_t aa;
+	unsigned int ab;
+
+	printf("action3 obj1: command handle called!'\n");
+	if ((aa_token = getCurrentToken(curr_tokens, "aa")) != NULL) {
+		if ((aa_token->eqval != NULL) && (strlen(aa_token->eqval) > 0)) {
+			sscanf(aa_token->eqval, aa_token->eqspec, &aa);
+		}
+		printf("action3 obj1: command parameter (aa=%.8x)!'\n", aa);
+	} else
+	if ((ab_token = getCurrentToken(curr_tokens, "ab")) != NULL) {
+		if ((ab_token->eqval != NULL) && (strlen(ab_token->eqval) > 0)) {
+			sscanf(ab_token->eqval, ab_token->eqspec, &ab);
+		}
+		printf("action3 obj1: command parameter (ab=%u)!'\n", ab);
+	} else
+	if ((all_token = getCurrentToken(curr_tokens, "all")) != NULL) {
+		printf("action3 obj1: command parameter (all)!'\n");
+	} else
+		return -3;
+
+	return 0;
+}
+
+static int action4_obj1_obj2_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *aa_token;
+	clisrv_token_struct *ab_token;
+	clisrv_token_struct *cc_token;
+	clisrv_token_struct *cd_token;
+	clisrv_token_struct *e_token;
+	uint32_t aa;
+	unsigned int ab;
+
+	printf("action3 obj1: command handle called!'\n");
+	if ((aa_token = getCurrentToken(curr_tokens, "aa")) != NULL) {
+		if ((aa_token->eqval != NULL) && (strlen(aa_token->eqval) > 0)) {
+			sscanf(aa_token->eqval, aa_token->eqspec, &aa);
+		}
+		printf("action3 obj1: command parameter (aa=%.8x)!'\n", aa);
+	} else
+	if ((ab_token = getCurrentToken(curr_tokens, "ab")) != NULL) {
+		if ((ab_token->eqval != NULL) && (strlen(ab_token->eqval) > 0)) {
+			sscanf(ab_token->eqval, ab_token->eqspec, &ab);
+		}
+		printf("action3 obj1: command parameter (ab=%u)!'\n", ab);
+	} else
+		return -3;
+
+	if ((cc_token = getCurrentToken(curr_tokens, "cc")) != NULL) {
+		printf("action3 obj1: command parameter (cc)!'\n");
+	} else
+		return -3;
+
+	if ((cd_token = getCurrentToken(curr_tokens, "cd")) != NULL) {
+		printf("action3 obj1: command parameter (cd)!'\n");
+	} else
+		return -3;
+
+	if ((e_token = getCurrentToken(curr_tokens, "e")) != NULL) {
+		printf("action3 obj1: command parameter (e)!'\n");
+	} else
+		return -3;
+
+	return 0;
+}
+
+static int action2_obj2_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *cc_token;
+	clisrv_token_struct *cd_token;
+	clisrv_token_struct *e_token;
+
+	printf("action2 obj2: command handle called!'\n");
+	if ((cc_token = getCurrentToken(curr_tokens, "cc")) != NULL) {
+		printf("action2 obj2: command parameter (cc)!'\n");
+	} else
+		return -3;
+
+	if ((cd_token = getCurrentToken(curr_tokens, "cd")) != NULL) {
+		printf("action2 obj2: command parameter (cd)!'\n");
+	} else
+		return -3;
+
+	if ((e_token = getCurrentToken(curr_tokens, "e")) != NULL) {
+		printf("action2 obj2: command parameter (e)!'\n");
+	} else
+		return -3;
+
+	return 0;
+}
+
+static int obj1_action2_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *aa_token;
+	clisrv_token_struct *ab_token;
+	uint32_t aa;
+	unsigned int ab;
+
+	printf("obj1 action2: command handle called!'\n");
+	if ((aa_token = getCurrentToken(curr_tokens, "aa")) != NULL) {
+		if ((aa_token->eqval != NULL) && (strlen(aa_token->eqval) > 0)) {
+			sscanf(aa_token->eqval, aa_token->eqspec, &aa);
+		}
+		printf("obj1 action2: command parameter (aa=%.8x)!'\n", aa);
+	} else
+	if ((ab_token = getCurrentToken(curr_tokens, "ab")) != NULL) {
+		if ((ab_token->eqval != NULL) && (strlen(ab_token->eqval) > 0)) {
+			sscanf(ab_token->eqval, ab_token->eqspec, &ab);
+		}
+		printf("obj1 action2: command parameter (ab=%u)!'\n", ab);
+	} else
+		return -3;
+
+	return 0;
+}
+
+static int obj1_action3_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *aa_token;
+	clisrv_token_struct *ab_token;
+	clisrv_token_struct *all_token;
+	uint32_t aa;
+	unsigned int ab;
+
+	printf("obj1 action3: command handle called!'\n");
+	if ((aa_token = getCurrentToken(curr_tokens, "aa")) != NULL) {
+		if ((aa_token->eqval != NULL) && (strlen(aa_token->eqval) > 0)) {
+			sscanf(aa_token->eqval, aa_token->eqspec, &aa);
+		}
+		printf("obj1 action3: command parameter (aa=%.8x)!'\n", aa);
+	} else
+	if ((ab_token = getCurrentToken(curr_tokens, "ab")) != NULL) {
+		if ((ab_token->eqval != NULL) && (strlen(ab_token->eqval) > 0)) {
+			sscanf(ab_token->eqval, ab_token->eqspec, &ab);
+		}
+		printf("obj1 action3: command parameter (ab=%u)!'\n", ab);
+	} else
+	if ((all_token = getCurrentToken(curr_tokens, "all")) != NULL) {
+		printf("obj1 action3: command parameter (all)!'\n");
+	} else
+		return -3;
+
+	return 0;
+}
+
+static int obj2_action2_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	clisrv_token_struct *cc_token;
+	clisrv_token_struct *cd_token;
+	clisrv_token_struct *e_token;
+
+	printf("obj2 action2: command handle called!'\n");
+	if ((cc_token = getCurrentToken(curr_tokens, "cc")) != NULL) {
+		printf("obj2 action2: command parameter (cc)!'\n");
+	} else
+		return -3;
+
+	if ((cd_token = getCurrentToken(curr_tokens, "cd")) != NULL) {
+		printf("obj2 action2: command parameter (cd)!'\n");
+	} else
+		return -3;
+
+	if ((e_token = getCurrentToken(curr_tokens, "e")) != NULL) {
+		printf("obj2 action2: command parameter (e)!'\n");
+	} else
+		return -3;
+
+	return 0;
+}
+
+static int quit_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	printf("quit command handle called!'\n");
+	return 127;
+}
+
+#if 0 /*orig*/
 static int test2_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
 {
 	printf("test2 command handle called!'\n");
@@ -255,6 +469,7 @@ static int test3_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
 	printf("test3 command handle called!'\n");
 	return 0;
 }
+#endif
 
 static int socketSendReceive(int sock, char *snd_str, char *rcv_buf, size_t rcv_buf_size)
 {
