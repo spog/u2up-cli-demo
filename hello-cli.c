@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Process CLI commands */
-	if (processCliCmds(*clisd, socketSendReceive) < 0) {
+	if (processCliCmds("hello-cli> ", *clisd, socketSendReceive) < 0) {
 		u2up_log_error("processCliCmds()\n");
 		close(sd[0]);
 		close(sd[1]);
