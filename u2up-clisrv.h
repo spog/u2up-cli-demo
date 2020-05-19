@@ -85,7 +85,7 @@ struct clisrv_cmd {
 	char *cmd;
 	int cmdsz;
 	clisrv_token_struct *tokens;
-	int nr_tokens;
+	int nr_cmd_tokens;
 	int (*cmd_handle)(clisrv_token_struct *curr_tokens, char *buff, int size);
 };
 
@@ -155,7 +155,7 @@ static int pconnCmdRemoveToken(clisrv_pconn_struct *pconn, char *token)
 
 void freePcmdCurrentTokens(clisrv_token_struct **curr_tokens)
 {
-	u2up_log_info("freePcmdCurrentTokens: entry\n");
+	u2up_log_info("entry\n");
 	/* Recursive freing */
 	if (curr_tokens != NULL) {
 		if (*curr_tokens != NULL) {
@@ -172,6 +172,7 @@ void freePcmdCurrentTokens(clisrv_token_struct **curr_tokens)
 static clisrv_token_struct * clisrvCheckAndSetCommand(clisrv_token_struct *pcmd_token, clisrv_pconn_struct *pconn)
 {
 	clisrv_token_struct *new;
+	u2up_log_info("entry\n");
 
 	if (pcmd_token == NULL)
 		return NULL;
@@ -182,6 +183,7 @@ static clisrv_token_struct * clisrvCheckAndSetCommand(clisrv_token_struct *pcmd_
 	if (pconn->nr_tokens == 0)
 		return NULL;
 
+	u2up_log_debug("pcmd_token->strval='%s', pconn->tokens='%s'\n", pcmd_token->strval, pconn->tokens);
 	if (strcmp(pcmd_token->strval, pconn->tokens) != 0)
 		return NULL;
 
@@ -317,19 +319,20 @@ static clisrv_token_struct * clisrvCheckAndSetArgument(clisrv_token_struct *pcmd
 	return curr_tokens;
 }
 
-clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *this, clisrv_pconn_struct *pconn)
+clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *pcmd, clisrv_pconn_struct *pconn)
 {
 	clisrv_token_struct *pcmd_token;
 	clisrv_token_struct *curr_tokens;
+	u2up_log_info("entry\n");
 
-	if (this == NULL)
+	if (pcmd == NULL)
 		return NULL;
 
 	if (pconn == NULL)
 		return NULL;
 
 	/* Analyse command token */
-	pcmd_token = this->tokens;
+	pcmd_token = pcmd->tokens;
 	if (pcmd_token->type != CLISRV_CMD) {
 		return NULL;
 	}
@@ -337,9 +340,13 @@ clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *this, clisrv_pc
 		return NULL;
 	}
 
+	/* Skip CLISRV_CMD types - already checked! */
+	while ((pcmd_token != NULL) && (pcmd_token->type == CLISRV_CMD)) {
+		pcmd_token = pcmd_token->next;
+	}
+
 	/* Analyse command argument tokens: walk through command specification! */
 	while (U2UP_CLI_TRUE) {
-		pcmd_token = pcmd_token->next;
 		if (pcmd_token == NULL) {
 			/* We got through command template! */
 			if (pconn->nr_tokens != 0) {
@@ -358,6 +365,7 @@ clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *this, clisrv_pc
 		}
 		/* Skip! */
 		if (pcmd_token->type != CLISRV_ARG) {
+			pcmd_token = pcmd_token->next;
 			continue;
 		}
 
@@ -381,6 +389,7 @@ clisrv_token_struct * checkSyntaxAndSetValues(clisrv_cmd_struct *this, clisrv_pc
 		if ((curr_tokens = clisrvCheckAndSetArgument(pcmd_token, pconn, curr_tokens)) == NULL) {
 			return NULL;
 		}
+		pcmd_token = pcmd_token->next;
 	}
 
 	return curr_tokens;
@@ -473,6 +482,7 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 	int altr = 0;
 	int altr_last = 0;
 	int token_on;
+	int cmd_tokens = U2UP_CLI_TRUE;
 	clisrv_token_struct *new;
 	clisrv_token_struct *base = NULL;
 	clisrv_token_struct *current;
@@ -485,11 +495,14 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 	}
 
 	u2up_log_debug("tokenizeCmdStr clicmd->cmd: %s\n", clicmd->cmd);
+	clicmd->nr_cmd_tokens = 0;
 
 	tmp = clicmd->cmd;
 	token_on = U2UP_CLI_FALSE;
 	while (*tmp != '\0') {
 		u2up_log_debug("tokenizeCmdStr tmp: %s\n", tmp);
+		if ((cmd_tokens == U2UP_CLI_TRUE) && (level != 0))
+			cmd_tokens = U2UP_CLI_FALSE;
 		if (*tmp == '{') {
 			level++;
 			mand = level;
@@ -647,6 +660,11 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 				u2up_log_system_error("calloc() - clisrv_token_struct: equals\n");
 				abort();
 			}
+			if (cmd_tokens == U2UP_CLI_TRUE) {
+				cmd_tokens = U2UP_CLI_FALSE;
+				if (clicmd->nr_cmd_tokens > 0)
+					clicmd->nr_cmd_tokens--;
+			}
 			current->next = new;
 			new->type = CLISRV_EQUALS;
 			u2up_log_debug("tokenizeCmdStr new->type: %d (CLISRV_EQUALS)\n", new->type);
@@ -681,6 +699,8 @@ static clisrv_token_struct * tokenizeCmdStr(clisrv_cmd_struct *clicmd)
 					u2up_log_system_error("calloc() - clisrv_token_struct: strval\n");
 					abort();
 				}
+				if (cmd_tokens == U2UP_CLI_TRUE)
+					clicmd->nr_cmd_tokens++;
 				if (base == NULL) {
 					base = new;
 					new->base = new;
@@ -745,7 +765,9 @@ static clisrv_cmd_struct * tokenizeCliCmd(char *clicmd)
 #if 0 /*test init result*/
 	{
 		clisrv_token_struct *token = tmp->tokens;
-		u2up_log_debug("pcmd tokens:\n");
+		u2up_log_debug("tokenized cmd: %s\n", clicmd);
+		u2up_log_debug("pcmd tokens: (nr_cmd_tokens=%d)\n", tmp->nr_cmd_tokens);
+#if 0
 		while (token != NULL) {
 			u2up_log_debug("tokenize cmd: %s\n", clicmd);
 			switch (token->type) {
@@ -788,6 +810,7 @@ static clisrv_cmd_struct * tokenizeCliCmd(char *clicmd)
 			token = token->next;
 		}
 		u2up_log_debug("\n");
+#endif
 	}
 #endif
 
@@ -923,18 +946,249 @@ static int tokenizeCmdLine(clisrv_pconn_struct *pconn)
 	return 0;
 }
 
-static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_pconn_struct *pconn, char *token, char *buff, int size)
+static int setCliOptsAutoCompleteByToken(clisrv_token_struct *pcmd_token, clisrv_pconn_struct *pconn, char *pconn_token, char *buff, int size)
+{
+	int opt_found = 0;
+	int opt_part_found = 0;
+	char *strval;
+	u2up_log_info("(entry)\n");
+
+	if (pconn == NULL) {
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
+		return -1;
+	}
+
+	if (pconn_token == NULL) {
+		u2up_log_error("Invalid argument pconn_token=%p\n", pconn_token);
+		return -1;
+	}
+
+	u2up_log_debug("pcmd_token=%p, pconn=%p, pconn_token='%s', buff='%s'\n", pcmd_token, pconn, pconn_token, buff);
+	while (pcmd_token != NULL) {
+		if (
+			(pcmd_token->type != CLISRV_CMD) &&
+			(pcmd_token->type != CLISRV_ARG)
+		   ) {
+			pcmd_token = pcmd_token->next;
+			continue;
+		}
+		strval = pcmd_token->strval;
+		u2up_log_debug("%s\n", strval);
+		u2up_log_debug("AutoComplete - Comparing-opts: strval=%s, pconn_token=%s\n", strval, pconn_token);
+		/* Force multi-match, if pconn_token empty! */
+		if (strlen(pconn_token) == 0)
+			opt_part_found++;
+		if (strlen(strval) >= strlen(pconn_token)) {
+			if (strncmp(strval, pconn_token, strlen(pconn_token)) == 0) {
+				u2up_log_debug("AutoComplete - opts - partially compared: strval=%s, pconn_token=%s\n", strval, pconn_token);
+				opt_part_found++;
+				u2up_log_debug("AutoComplete - opts - buff-1: '%s'\n", buff);
+
+				if (strlen(strval) == strlen(pconn_token)) {
+					opt_found = 1;
+				}
+
+				if (opt_part_found == 1) {
+					clisrv_strncat(buff, &strval[strlen(pconn_token)], size);
+					if (pcmd_token->next->type == CLISRV_EQUALS)
+						clisrv_strncat(buff, "=", size);
+					if (opt_found == 1)
+						break;
+				} else {
+					int j = 0;
+					do {
+						if (buff[j] != strval[strlen(pconn_token) + j]) {
+							buff[j] = '\0';
+							break;
+						}
+						j++;
+					} while (j < strlen(buff));
+				}
+			}
+		} else if (strchr(pconn_token, '=') != NULL) {
+			if (strncmp(strval, pconn_token, strlen(strval)) == 0) {
+				u2up_log_debug("AutoComplete - opts - partially compared: strval=%s, pconn_token=%s\n", strval, pconn_token);
+				opt_part_found++;
+				u2up_log_debug("AutoComplete - opts - buff-1: '%s'\n", buff);
+			}
+		}
+		pcmd_token = pcmd_token->next;
+	}
+
+	return opt_part_found;
+}
+
+static int setCliCmdsAutoCompleteByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pconn, char *buff, int size)
+{
+	int i, j, saved_j = 0;
+	int opt_part_found = 0;
+	int cmd_found = 0;
+	int cmd_part_found = 0;
+	int cmds_part_found = 0;
+	char *pconn_token;
+	clisrv_cmd_struct *pcmd;
+	clisrv_token_struct *pcmd_token;
+	u2up_log_info("(entry)\n");
+
+	if (pcmds == NULL) {
+		u2up_log_error("Invalid argument pcmds=%p\n", pcmds);
+		return -1;
+	}
+
+	if (pconn == NULL) {
+		u2up_log_error("Invalid argument pconn=%p\n", pconn);
+		return -1;
+	}
+
+	pcmd = pcmds->first;
+	/* First check command */
+	for (i = 0; i < pcmds->nr_cmds; i++) {
+		cmd_part_found = 0;
+		pcmd_token = pcmd->tokens;
+		pconn_token = pconn->tokens;
+
+		j = 1;
+		u2up_log_debug("Comparing tokens (%d/%d): [%d]pcmd_token->strval=%s, pconn_token=%s\n", j, pcmd->nr_cmd_tokens, i, pcmd_token->strval, pconn_token);
+		while ((j <= pcmd->nr_cmd_tokens) && (pconn->nr_tokens > 0)) {
+			if (strlen(pcmd_token->strval) >= strlen(pconn_token)) {
+				if (strncmp(pcmd_token->strval, pconn_token, strlen(pconn_token)) == 0) {
+					u2up_log_debug("partially compared: pcmd_token->strval=%s, pconn_token=%s\n", pcmd_token->strval, pconn_token);
+					cmd_part_found++;
+					u2up_log_debug("buff-1: '%s'\n", buff);
+
+					if (strlen(pcmd_token->strval) == strlen(pconn_token)) {
+						u2up_log_debug("buff-2: '%s'\n", buff);
+						u2up_log_debug("Found part command (equal also in size): pconn_token='%s'\n", pconn_token);
+						cmd_found = 1;
+						cmd_part_found = 1;
+					} else {
+						u2up_log_debug("cmd_part_found=%d, cmd_found=%d, j=%d, saved_j=%d\n", cmd_part_found, cmd_found, j, saved_j);
+						if ((saved_j == 0) && (cmd_part_found >= 1)) {
+							/* Add first partially equal pcmd_token as whole, to be shotrened later, if necessary */
+							if (strlen(pconn_token) == 0)
+								clisrv_strncat(buff, " ", size);
+							clisrv_strncat(buff, &pcmd_token->strval[strlen(pconn_token)], size);
+							u2up_log_debug("buff-3: '%s'\n", buff);
+							if (cmd_part_found == pcmd->nr_cmd_tokens)
+								saved_j = j;
+						} else
+						if ((j == saved_j) && (cmd_part_found >= 1)) {
+							int k = 0, l;
+							/* Shorten added partially equal pcmd_token, if necessary */
+							if (strlen(pconn_token) == 0)
+								l = 1;
+							else
+								l = 0;
+							do {
+								if (buff[k + l] != pcmd_token->strval[strlen(pconn_token) + k]) {
+									buff[k + l] = '\0';
+									break;
+								}
+								k++;
+							} while (k < strlen(buff));
+							u2up_log_debug("buff-4: '%s'\n", buff);
+						}
+
+						u2up_log_debug("Partly found part command (equal up to pconn_token size): pconn_token='%s'\n", pconn_token);
+						cmd_found = 0;
+					}
+				} else {
+					u2up_log_debug("NOT found part command (differ up to pconn_token size): pconn_token='%s'\n", pconn_token);
+					cmd_found = 0;
+					break;
+				}
+			} else {
+				u2up_log_debug("NOT found part command (pconn_token too long): pconn_token='%s'\n", pconn_token);
+				cmd_found = 0;
+				break;
+			}
+			j++;
+			if (j <= pcmd->nr_cmd_tokens) {
+				pcmd_token = pcmd_token->next;
+				if (j <= pconn->nr_tokens)
+					pconn_token += (strlen(pconn_token) + 1);
+				else
+					pconn_token += strlen(pconn_token);
+				u2up_log_debug("Comparing tokens (%d/%d): [%d]pcmd_token->strval=%s, pconn_token=%s\n", j, pcmd->nr_cmd_tokens, i, pcmd_token->strval, pconn_token);
+			}
+		}
+		if (pconn->nr_tokens < pcmd->nr_cmd_tokens) {
+			u2up_log_debug("NOT found command (nr of cmdline tokens is lower than required)\n");
+			cmd_found = 0;
+		}
+
+		if (cmd_part_found > 0)
+			cmds_part_found++;
+
+		if (cmd_found == 1) {
+			cmds_part_found = 1;
+			break;
+		}
+		pcmd = pcmd->next;
+	}
+
+	if (cmd_found != 0) {
+		u2up_log_debug("fully compared: pcmd_token->strval=%s, pconn_token(nr_tokens=%d)=%s\n", pcmd_token->strval, pconn->nr_tokens, pconn_token);
+		if (pconn->nr_tokens > 0) {
+			i = pcmd->nr_cmd_tokens;
+			pconn_token += (strlen(pconn_token) + 1);
+			if (strlen(pconn_token) > 0) { /*do this only if option tokens present */
+				while (i <= pconn->nr_tokens) {
+					opt_part_found = setCliOptsAutoCompleteByToken(pcmd_token->next, pconn, pconn_token, buff, size);
+					u2up_log_debug("opt_part_found=%d\n", opt_part_found);
+					if (strncmp(pcmd_token->strval, pconn_token, size) == 0)
+						break;
+					i++;
+					if (i >= pconn->nr_tokens)
+						break;
+					pconn_token += (strlen(pconn_token) + 1);
+				}
+			}
+		}
+	}
+
+	/* Adding additional space to auto-complete, if needed! */
+	u2up_log_debug("checkend - pconn->rcv(sz=%ld): '%c' cmd_found=%d, cmds_part_found=%d, opt_part_found=%d\n",
+			strlen(pconn->rcv), pconn->rcv[strlen(pconn->rcv) - 2], cmd_found, cmds_part_found, opt_part_found);
+	u2up_log_debug("checkend - buff(len=%ld): '%c'\n", strlen(buff), buff[strlen(buff) - 1]);
+	if (
+		((cmds_part_found == 1) || (opt_part_found == 1)) &&
+		(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
+		(pconn->rcv[strlen(pconn->rcv) - 2] != '=') &&
+		(strlen(buff) > 0) &&
+		(buff[strlen(buff) - 1] != '=')
+	) {
+		u2up_log_debug("adding space 1\n");
+		clisrv_strncat(buff, " ", size);
+	} else if (
+		((cmds_part_found == 1) && (opt_part_found == 1)) &&
+		(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
+		(pconn->rcv[strlen(pconn->rcv) - 2] != '=') &&
+		(strlen(buff) == 0)
+	) {
+		u2up_log_debug("adding space 2\n");
+		clisrv_strncat(buff, " ", size);
+	} else if (
+		((cmds_part_found == 1) && (opt_part_found == 0)) &&
+		(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
+		(pconn->nr_tokens == /*1*/pcmd->nr_cmd_tokens)
+	) {
+		u2up_log_debug("adding space 3\n");
+		clisrv_strncat(buff, " ", size);
+	}
+
+	cmds_part_found = opt_part_found;
+
+	return cmds_part_found;
+}
+
+static int setCliOptsAutoSuggestByToken(clisrv_token_struct *pcmd_token, clisrv_pconn_struct *pconn, char *token, char *buff, int size)
 {
 	int braces = 0;
 	int opt_part_found = 0;
 	char *strval;
-	clisrv_token_struct *pcmd_token;
+	clisrv_token_struct *tmp = pcmd_token;
 	u2up_log_info("(entry)\n");
-
-	if (pcmd_tokens == NULL) {
-		u2up_log_error("Invalid argument pcmd_tokens=%p\n", pcmd_tokens);
-		return -1;
-	}
 
 	if (pconn == NULL) {
 		u2up_log_error("Invalid argument pconn=%p\n", pconn);
@@ -946,8 +1200,7 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 		return -1;
 	}
 
-	u2up_log_debug("TEST: setCliCmdAutoSuggestByToken()\n");
-	pcmd_token = pcmd_tokens->next;
+	u2up_log_debug("pcmd_token=%p, pconn=%p, token='%s', buff='%s'\n", pcmd_token, pconn, token, buff);
 	while (pcmd_token != NULL) {
 		if (
 			(pcmd_token->type != CLISRV_CMD) &&
@@ -978,7 +1231,7 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 	}
 
 	if (opt_part_found > 0) {
-		pcmd_token = pcmd_tokens->next;
+		pcmd_token = tmp;
 		braces = 0;
 		while (pcmd_token != NULL) {
 			if (
@@ -1071,88 +1324,15 @@ static int setCliCmdAutoSuggestByToken(clisrv_token_struct *pcmd_tokens, clisrv_
 	return opt_part_found;
 }
 
-static int setCliCmdAutoCompleteByToken(clisrv_token_struct *pcmd_tokens, clisrv_pconn_struct *pconn, char *token, char *buff, int size)
+static int setCliCmdsAutoSuggestByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pconn, char *buff, int size)
 {
-	int opt_found = 0;
-	int opt_part_found = 0;
-	char *strval;
-	clisrv_token_struct *pcmd_token;
-	u2up_log_info("(entry)\n");
-
-	if (pcmd_tokens == NULL) {
-		u2up_log_error("Invalid argument pcmd_tokens=%p\n", pcmd_tokens);
-		return -1;
-	}
-
-	if (pconn == NULL) {
-		u2up_log_error("Invalid argument pconn=%p\n", pconn);
-		return -1;
-	}
-
-	if (token == NULL) {
-		u2up_log_error("Invalid argument token=%p\n", token);
-		return -1;
-	}
-
-	u2up_log_debug("TEST: setCliCmdAutoCompleteByToken()\n");
-	pcmd_token = pcmd_tokens->next;
-	while (pcmd_token != NULL) {
-		if (
-			(pcmd_token->type != CLISRV_CMD) &&
-			(pcmd_token->type != CLISRV_ARG)
-		   ) {
-			pcmd_token = pcmd_token->next;
-			continue;
-		}
-		strval = pcmd_token->strval;
-		u2up_log_debug("%s\n", strval);
-		u2up_log_debug("AutoComplete - Comparing-opts: strval=%s, token=%s\n", strval, token);
-		/* Force multi-match, if token empty! */
-		if (strlen(token) == 0)
-			opt_part_found++;
-		if (strlen(strval) >= strlen(token)) {
-			if (strncmp(strval, token, strlen(token)) == 0) {
-				u2up_log_debug("AutoComplete - opts - partially compared: strval=%s, token=%s\n", strval, token);
-				opt_part_found++;
-				u2up_log_debug("AutoComplete - opts - buff-1: '%s'\n", buff);
-
-				if (strlen(strval) == strlen(token)) {
-					opt_found = 1;
-				}
-
-				if (opt_part_found == 1) {
-					clisrv_strncat(buff, &strval[strlen(token)], size);
-					if (pcmd_token->next->type == CLISRV_EQUALS)
-						clisrv_strncat(buff, "=", size);
-					if (opt_found == 1)
-						break;
-				} else {
-					int j = 0;
-					do {
-						if (buff[j] != strval[strlen(token) + j]) {
-							buff[j] = '\0';
-							break;
-						}
-						j++;
-					} while (j < strlen(buff));
-				}
-			}
-		}
-		pcmd_token = pcmd_token->next;
-	}
-
-	return opt_part_found;
-}
-
-static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pconn, char *buff, int size, int mode)
-{
-	int i;
+	int i, j;
 	int opt_part_found = 0;
 	int cmd_found = 0;
 	int cmd_part_found = 0;
-	char *token;
-	char *strval;
+	char *pconn_token;
 	clisrv_cmd_struct *pcmd;
+	clisrv_token_struct *pcmd_token;
 	u2up_log_info("(entry)\n");
 
 	if (pcmds == NULL) {
@@ -1165,103 +1345,86 @@ static int setCliCmdsResponseByTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_st
 		return -1;
 	}
 
-	token = pconn->tokens;
 	pcmd = pcmds->first;
+	/* First check command */
 	for (i = 0; i < pcmds->nr_cmds; i++) {
-		strval = pcmd->tokens->strval;
-		u2up_log_debug("%s\n", strval);
-		u2up_log_debug("Comparing-cmds: mode=%d, strval=%s, token=%s\n", mode, strval, token);
-		if (strlen(strval) >= strlen(token)) {
-			if (strncmp(strval, token, strlen(token)) == 0) {
-				u2up_log_debug("cmds - partially compared: strval=%s, token=%s\n", strval, token);
-				cmd_part_found++;
-				u2up_log_debug("cmds - buff-1: '%s'\n", buff);
+		cmd_part_found = 0;
+		pcmd_token = pcmd->tokens;
+		pconn_token = pconn->tokens;
 
-				if (strlen(strval) == strlen(token)) {
-					u2up_log_debug("buff-2: '%s'\n", buff);
-					cmd_found = 1;
-					break;
-				}
+		j = 1;
+		u2up_log_debug("Comparing tokens (%d/%d): pcmd_token->strval=%s, pconn_token=%s\n", j, pcmd->nr_cmd_tokens, pcmd_token->strval, pconn_token);
+		while (j <= pcmd->nr_cmd_tokens) {
+			if (strlen(pcmd_token->strval) >= strlen(pconn_token)) {
+				if (strncmp(pcmd_token->strval, pconn_token, strlen(pconn_token)) == 0) {
+					u2up_log_debug("cmds - partially compared: pcmd_token->strval=%s, pconn_token=%s\n", pcmd_token->strval, pconn_token);
+					cmd_part_found++;
+					u2up_log_debug("cmds - buff-1: '%s'\n", buff);
 
-				if (mode == CLISRV_AUTO_COMPLETE) {
-					if (cmd_part_found == 1)
-						clisrv_strncat(buff, &strval[strlen(token)], size);
-					else {
-						int j = 0;
-						do {
-							if (buff[j] != strval[strlen(token) + j]) {
-								buff[j] = '\0';
-								break;
-							}
-							j++;
-						} while (j < strlen(buff));
+					if ((j == pcmd->nr_cmd_tokens) && (strlen(pcmd_token->strval) == strlen(pconn_token))) {
+						u2up_log_debug("buff-2: '%s'\n", buff);
+						u2up_log_debug("Found last command part (equal also in size): pconn_token='%s'\n", pconn_token);
+						/* Clear whatever has been added to buff after "<pre>" */
+						buff[5] = '\0';
+						u2up_log_debug("buff-3: '%s'\n", buff);
+						cmd_found = 1;
+					} else {
+						if (j == 1)
+							clisrv_strncat(buff, "\n", size);
+
+						clisrv_strncat(buff, pcmd_token->strval, size);
+
+						u2up_log_debug("cmds - buff-4: '%s'\n", buff);
+						clisrv_strncat(buff, " ", size);
+						u2up_log_debug("cmds - buff-5: '%s'\n", buff);
+
+						u2up_log_debug("Partly found part command (equal up to pconn_token size): pconn_token='%s'\n", pconn_token);
+						cmd_found = 0;
 					}
+				} else {
+					u2up_log_debug("NOT found part command (differ up to pconn_token size): pconn_token='%s'\n", pconn_token);
+					cmd_found = 0;
 				}
-				if (mode == CLISRV_AUTO_SUGGEST) {
-					clisrv_strncat(buff, "\n", size);
-					clisrv_strncat(buff, strval, size);
-
-					u2up_log_debug("cmds - buff-4: '%s'\n", buff);
-					clisrv_strncat(buff, " ", size);
-					u2up_log_debug("cmds - buff-5: '%s'\n", buff);
-				}
+			} else {
+				u2up_log_debug("NOT found part command (pconn_token too long): pconn_token='%s'\n", pconn_token);
+				cmd_found = 0;
 			}
+			if (j > cmd_part_found)
+				j = pcmd->nr_cmd_tokens + 1;
+			else
+				j++;
+			if (j <= pcmd->nr_cmd_tokens) {
+				pcmd_token = pcmd_token->next;
+				if (j <= pconn->nr_tokens)
+					pconn_token += (strlen(pconn_token) + 1);
+				else
+					pconn_token += strlen(pconn_token);
+				u2up_log_debug("Comparing tokens (%d/%d): pcmd_token->strval=%s, pconn_token=%s\n", j, pcmd->nr_cmd_tokens, pcmd_token->strval, pconn_token);
+			}
+		}
+		if (pconn->nr_tokens < pcmd->nr_cmd_tokens) {
+			u2up_log_debug("NOT found command (nr of cmdline tokens is lower than required)\n");
+			cmd_found = 0;
+		}
+		if (cmd_found == 1) {
+			break;
 		}
 		pcmd = pcmd->next;
 	}
+
 	if (cmd_found != 0) {
-		u2up_log_debug("fully compared: strval=%s, token(nr_tokens=%d)=%s\n", strval, pconn->nr_tokens, token);
+		u2up_log_debug("fully compared: pcmd_token->strval=%s, pconn_token(nr_tokens=%d)=%s\n", pcmd_token->strval, pconn->nr_tokens, pconn_token);
 		if (pconn->nr_tokens > 0) {
-			i = 1;
-			token += (strlen(token) + 1);
+			i = pcmd->nr_cmd_tokens;
+			pconn_token += (strlen(pconn_token) + 1);
 			while (i < pconn->nr_tokens) {
-				if (mode == CLISRV_AUTO_COMPLETE) {
-					opt_part_found = setCliCmdAutoCompleteByToken(pcmd->tokens, pconn, token, buff, size);
-					u2up_log_debug("2 - opt_part_found=%d\n", opt_part_found);
-					if (strncmp(strval, token, size) == 0)
-						break;
-				}
 				i++;
 				if (i >= pconn->nr_tokens)
 					break;
-				token += (strlen(token) + 1);
+				pconn_token += (strlen(pconn_token) + 1);
 			}
-			if (mode == CLISRV_AUTO_SUGGEST) {
-				opt_part_found = setCliCmdAutoSuggestByToken(pcmd->tokens, pconn, token, buff, size);
-				u2up_log_debug("3 - opt_part_found=%d\n", opt_part_found);
-			}
-		}
-	}
-
-	/* Adding additional space to auto-complete, if needed! */
-	if (mode == CLISRV_AUTO_COMPLETE) {
-		u2up_log_debug("checkend - pconn->rcv(sz=%ld): '%c' cmd_found=%d, cmd_part_found=%d, opt_part_found=%d\n",
-				strlen(pconn->rcv), pconn->rcv[strlen(pconn->rcv) - 2], cmd_found, cmd_part_found, opt_part_found);
-		u2up_log_debug("checkend - buff(len=%ld): '%c'\n", strlen(buff), buff[strlen(buff) - 1]);
-		if (
-			((cmd_part_found == 1) || (opt_part_found == 1)) &&
-			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
-			(pconn->rcv[strlen(pconn->rcv) - 2] != '=') &&
-			(strlen(buff) > 0) &&
-			(buff[strlen(buff) - 1] != '=')
-		) {
-			u2up_log_debug("adding space 1\n");
-			clisrv_strncat(buff, " ", size);
-		} else if (
-			((cmd_part_found == 1) && (opt_part_found == 1)) &&
-			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
-			(pconn->rcv[strlen(pconn->rcv) - 2] != '=') &&
-			(strlen(buff) == 0)
-		) {
-			u2up_log_debug("adding space 2\n");
-			clisrv_strncat(buff, " ", size);
-		} else if (
-			((cmd_part_found == 1) && (opt_part_found == 0)) &&
-			(pconn->rcv[strlen(pconn->rcv) - 2] != ' ') &&
-			(pconn->nr_tokens == 1)
-		) {
-			u2up_log_debug("adding space 3\n");
-			clisrv_strncat(buff, " ", size);
+			opt_part_found = setCliOptsAutoSuggestByToken(pcmd_token->next, pconn, pconn_token, buff, size);
+			u2up_log_debug("3 - opt_part_found=%d\n", opt_part_found);
 		}
 	}
 
@@ -1280,29 +1443,29 @@ static int autoCmdLine(clisrv_pconn_struct *pconn, int mode)
 		return -1;
 	}
 
-	if (mode == CLISRV_AUTO_SUGGEST)
-		clisrv_strncat(pconn->snd, "<pre>", CLISRV_MAX_MSGSZ);
-
-	if ((rv = setCliCmdsResponseByTokens(clisrv_pcmds, pconn, pconn->snd, CLISRV_MAX_MSGSZ, mode)) < 0) {
-		u2up_log_error("setCliCmdResponseByTokens() failed\n");
-		return -1;
-	}
-
 	switch (mode) {
 	case CLISRV_AUTO_COMPLETE:
+		if ((rv = setCliCmdsAutoCompleteByTokens(clisrv_pcmds, pconn, pconn->snd, CLISRV_MAX_MSGSZ)) < 0) {
+			u2up_log_error("setCliCmdResponseByTokens() failed\n");
+			return -1;
+		}
 		u2up_log_debug("Auto-Complete(len=%ld):'%s'\n", strlen(pconn->snd), pconn->snd);
 		u2up_log_debug("Auto-Complete(pconn->rcvlen=%d):'%s'\n", pconn->rcvlen, pconn->rcv);
 		clisrv_strncat(pconn->snd, "\t", CLISRV_MAX_MSGSZ);
 		u2up_log_debug("Auto-Complete-send(len=1):'%s'\n", pconn->snd);
 		pconn->sndsz = strlen(pconn->snd) + 1;
 		break;
+
 	case CLISRV_AUTO_SUGGEST:
-		{
-			clisrv_strncat(pconn->snd, "</pre>", CLISRV_MAX_MSGSZ);
-			clisrv_strncat(pconn->snd, pconn->rcv, CLISRV_MAX_MSGSZ);
-			u2up_log_debug("Auto-Suggest(len=%ld, pconn->rcvlen=%d):'%s'\n", strlen(pconn->snd), pconn->rcvlen, pconn->snd);
-			pconn->sndsz = strlen(pconn->snd) + 1;
+		clisrv_strncat(pconn->snd, "<pre>", CLISRV_MAX_MSGSZ);
+		if ((rv = setCliCmdsAutoSuggestByTokens(clisrv_pcmds, pconn, pconn->snd, CLISRV_MAX_MSGSZ)) < 0) {
+			u2up_log_error("setCliCmdResponseByTokens() failed\n");
+			return -1;
 		}
+		clisrv_strncat(pconn->snd, "</pre>", CLISRV_MAX_MSGSZ);
+		clisrv_strncat(pconn->snd, pconn->rcv, CLISRV_MAX_MSGSZ);
+		u2up_log_debug("Auto-Suggest(len=%ld, pconn->rcvlen=%d):'%s'\n", strlen(pconn->snd), pconn->rcvlen, pconn->snd);
+		pconn->sndsz = strlen(pconn->snd) + 1;
 		break;
 	}
 	return 0;
@@ -1310,11 +1473,11 @@ static int autoCmdLine(clisrv_pconn_struct *pconn, int mode)
 
 static int execCliCmdsTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pconn, char *buff, int size)
 {
-	int i;
+	int i, j;
 	int cmd_found = 0;
-	char *token;
-	char *strval;
+	char *pconn_token;
 	clisrv_cmd_struct *pcmd;
+	clisrv_token_struct *pcmd_token;
 	clisrv_token_struct *curr_tokens;
 	u2up_log_info("(entry)\n");
 
@@ -1333,19 +1496,41 @@ static int execCliCmdsTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pco
 		return 0;
 	}
 
-	token = pconn->tokens;
 	pcmd = pcmds->first;
 	/* First check command */
 	for (i = 0; i < pcmds->nr_cmds; i++) {
-		strval = pcmd->tokens->strval;
-		u2up_log_debug("%s\n", strval);
-		u2up_log_debug("Comparing-cmds: strval='%s', token='%s'\n", strval, token);
-		if (strlen(strval) == strlen(token)) {
-			if (strncmp(strval, token, strlen(token)) == 0) {
-				u2up_log_debug("command found: cmd='%s'\n", token);
-				cmd_found = 1;
+		pcmd_token = pcmd->tokens;
+		pconn_token = pconn->tokens;
+		j = 1;
+		u2up_log_debug("Comparing tokens (%d/%d): [%d]pcmd_token->strval=%s, pconn_token=%s\n", j, pcmd->nr_cmd_tokens, i, pcmd_token->strval, pconn_token);
+		while ((j <= pconn->nr_tokens) && (j <= pcmd->nr_cmd_tokens)) {
+			if (strlen(pcmd_token->strval) == strlen(pconn_token)) {
+				if (strncmp(pcmd_token->strval, pconn_token, strlen(pconn_token)) == 0) {
+					u2up_log_debug("Found command part (exact match): pconn_token='%s'\n", pconn_token);
+					cmd_found = 1;
+				} else {
+					u2up_log_debug("NOT found command part (no exact match): pconn_token='%s'\n", pconn_token);
+					cmd_found = 0;
+					break;
+				}
+			} else {
+				u2up_log_debug("NOT found command part (size not equal): pconn_token='%s'\n", pconn_token);
+				cmd_found = 0;
 				break;
 			}
+			j++;
+			if ((j <= pconn->nr_tokens) && (j <= pcmd->nr_cmd_tokens)) {
+				pcmd_token = pcmd_token->next;
+				pconn_token += (strlen(pconn_token) + 1);
+				u2up_log_debug("Comparing tokens (%d/%d): [%d]pcmd_token->strval=%s, pconn_token=%s\n", j, pcmd->nr_cmd_tokens, i, pcmd_token->strval, pconn_token);
+			}
+		}
+		if (pconn->nr_tokens < pcmd->nr_cmd_tokens) {
+			u2up_log_debug("NOT found command (nr of cmdline tokens is lower than required)\n");
+			cmd_found = 0;
+		}
+		if (cmd_found == 1) {
+			break;
 		}
 		pcmd = pcmd->next;
 	}
@@ -1353,6 +1538,7 @@ static int execCliCmdsTokens(clisrv_cmds_struct *pcmds, clisrv_pconn_struct *pco
 		return -2;
 	}
 
+	u2up_log_debug("pcmd=%p, pconn=%p\n", pcmd, pconn);
 	if ((curr_tokens = checkSyntaxAndSetValues(pcmd, pconn)) == NULL) {
 		if (pconn->nr_tokens == 0)
 			clisrv_strncat(buff, "Missing command arguments!\n", CLISRV_MAX_MSGSZ);
@@ -1421,7 +1607,7 @@ static int parseCmdLine(clisrv_pconn_struct *pconn)
 	}
 
 	tokenizeCmdLine(pconn);
-#if 1
+#if 1 /*DBG only*/
 	u2up_log_debug("pconn->tokens=%s, pconn->nr_tokens=%d\n", pconn->tokens, pconn->nr_tokens);
 	{
 		char *token = pconn->tokens;
