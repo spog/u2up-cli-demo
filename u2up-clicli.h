@@ -57,7 +57,6 @@ static char incomplete_line[CLISRV_MAX_CMDSZ];
 #define CLISRV_TSF "%a, %d %b %Y %T"
 #define CLISRV_LTSM "["
 #define CLISRV_RTSM "] "
-#define CLISRV_PROMPT "netsim-cli> "
 
 static int initCmdLineLog(char *fileName, int logTrimLines)
 {
@@ -708,14 +707,14 @@ static int getherCmdLine(char * const cmdline, int size)
 	return 0;
 }
 
-int processCliCmds(int sockfd, int (*cmd_send_receive)(int sock, char *snd_str, char *rcv_buf, size_t rcv_buf_size))
+int processCliCmds(char *cli_prompt, int sockfd, int (*cmd_send_receive)(int sock, char *snd_str, char *rcv_buf, size_t rcv_buf_size))
 {
 	char snd_buf[CLISRV_MAX_CMDSZ] = "";
 	char rcv_buf[CLISRV_MAX_MSGSZ] = "";
 	char *pre_begin, *pre_end, *remain_str;
 	u2up_log_info("(entry) sockfd=%d\n", sockfd);
 
-	printf(CLISRV_PROMPT);
+	printf("%s", cli_prompt);
 	fflush(stdout);
 	while (U2UP_CLI_TRUE) {
 		/* Gether-together a cmd-line */
@@ -777,7 +776,7 @@ int processCliCmds(int sockfd, int (*cmd_send_receive)(int sock, char *snd_str, 
 		if ((pre_begin == NULL) && (pre_end == NULL)) {
 			printf("%s", remain_str);
 		} else {
-			printf(CLISRV_PROMPT"%s", remain_str);
+			printf("%s%s", cli_prompt, remain_str);
 		}
 		fflush(stdout);
 	}
