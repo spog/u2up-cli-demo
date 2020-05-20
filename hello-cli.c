@@ -195,12 +195,12 @@ static clisrv_pconn_struct *pconn;
 static char *clisrv_cmds[] = {
 	"action1 [str=%s]",
 	"action2 obj1 {aa=%8x|ab=%u}",
-	"action3 obj1 {aa=%8x|ab=%u|all}",
+	"action3 obj1 {aa=%8x|ab=%u | all}",
 	"action4 obj1 obj2 {aa=%8x|ab=%u}{cc}{cd}{e}",
-	"action2 obj2 {cc}{cd}{e}",
+	"action2 obj2 {cc}{cd} {e}",
 	"obj1 action2 {aa=%8x|ab=%u}",
-	"obj1 action3 {aa=%8x|ab=%u|all}",
-	"obj2 action2 {cc}{cd}{e}",
+	"obj1 action3 {aa=%8x | ab=%u | all}",
+	"obj2 action2 {cc} {cd} {e}",
 	"quit",
 	NULL
 };
