@@ -43,6 +43,24 @@ demo/u2up-cli-demo$
 demo/u2up-cli-demo$ 
 demo/u2up-cli-demo$ ./hello-cli 
 hello-cli>  
+help
+action1
+action2
+action3
+action4
+obj1
+obj2
+quit
+hello-cli> help  
+help command handle called!'
+
+Press TAB-TAB to display all available commands.
+Use TAB for auto-complete.
+Use TAB-TAB for auto-suggest.
+Use UP and DOWN keys to walk the commands history.
+
+hello-cli> 
+help
 action1
 action2
 action3
@@ -55,6 +73,15 @@ action1
 action2
 action3
 action4
+hello-cli> action1  
+[str=%s]
+hello-cli> action1  
+action1: command handle called!'
+hello-cli>  
+hello-cli> action1 str=hello
+action1: command handle called!'
+action1 command handle: str=hello
+hello-cli>  
 hello-cli> action2  
 obj1
 obj2
@@ -63,9 +90,10 @@ obj1
 obj2
 hello-cli> action2 obj1  
 {aa=%8x | ab=%u}
-hello-cli> action2 obj1 aa=1
+hello-cli> action2 obj1 aa=f1bedac 
 action2 obj1: command handle called!'
-action2 obj1: command parameter (aa=00000001)!'
+action2 obj1: command parameter (aa=0f1bedac)!'
+hello-cli>  
 hello-cli> quit  
 quit command handle called!'
 Bye...

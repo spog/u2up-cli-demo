@@ -193,6 +193,7 @@ static int *srvsd;
 static clisrv_pconn_struct *pconn;
 
 static char *clisrv_cmds[] = {
+	"help",
 	"action1 [str=%s]",
 	"action2 obj1 {aa=%8x|ab=%u}",
 	"action3 obj1 {aa=%8x|ab=%u | all}",
@@ -205,6 +206,7 @@ static char *clisrv_cmds[] = {
 	NULL
 };
 
+static int help_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
 static int action1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
 static int action2_obj1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
 static int action3_obj1_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
@@ -220,6 +222,7 @@ static int test3_handle(clisrv_token_struct *curr_tokens, char *buff, int size);
 #endif
 
 static int (*cmd_handle[])(clisrv_token_struct *curr_tokens, char *buff, int size) = {
+	help_handle,
 	action1_handle,
 	action2_obj1_handle,
 	action3_obj1_handle,
@@ -234,6 +237,16 @@ static int (*cmd_handle[])(clisrv_token_struct *curr_tokens, char *buff, int siz
 	test3_handle,
 #endif
 };
+
+static int help_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
+{
+	printf("help command handle called!'\n");
+	clisrv_strncat(buff, "\nPress TAB-TAB to display all available commands.\n", size);
+	clisrv_strncat(buff, "Use TAB for auto-complete.\n", size);
+	clisrv_strncat(buff, "Use TAB-TAB for auto-suggest.\n", size);
+	clisrv_strncat(buff, "Use UP and DOWN keys to walk the commands history.\n", size);
+	return 0;
+}
 
 static int action1_handle(clisrv_token_struct *curr_tokens, char *buff, int size)
 {
