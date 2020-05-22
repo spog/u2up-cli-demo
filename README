@@ -1,4 +1,5 @@
 Compiling "hello-cli":
+======================
 
 $ 
 $ mkdir demo
@@ -40,17 +41,12 @@ drwxr-xr-x 4 samo samo   4096 maj 22 19:57 include
 -rw-r--r-- 1 samo samo   3281 maj 22 19:57 README
 demo/u2up-cli-demo$ 
 
+Running "hello-cli":
+====================
+
 demo/u2up-cli-demo$ 
 demo/u2up-cli-demo$ ./hello-cli 
 hello-cli>  
-help
-action1
-action2
-action3
-action4
-obj1
-obj2
-quit
 hello-cli> help  
 help command handle called!'
 
