@@ -256,7 +256,7 @@ static int action1_handle(clisrv_token_struct *curr_tokens, char *buff, int size
 
 	if ((str_token = getCurrentToken(curr_tokens, "str")) != NULL) {
 		if ((str_token->eqval != NULL) && (strlen(str_token->eqval) > 0)) {
-			printf("action1 command handle: str=%s\n", str_token->eqval);
+			printf("action1 command handle: str='%s'\n", str_token->eqval);
 		}
 	}
 
